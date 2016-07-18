@@ -1,0 +1,544 @@
+<!-- labor_part_agebrackets.html -->
+
+<html>
+
+<head>
+	<title>Average Wages by Demographics</title>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/snap.svg/0.4.1/snap.svg-min.js"></script>
+	<link href="css/materialdesignicons.min.css" media="all" rel="stylesheet" type="text/css" />
+
+	<style>
+		@import url(https://fonts.googleapis.com/css?family=Lato:400,700);
+		body{width:745px;margin-left:auto;margin-right:auto;padding-top:60px;}
+		.select_carat{position:relative;display:inline-block;}
+		.select_carat:after{
+			content:"\f236";
+			font-family:"Material Design Icons";
+			font-weight:700;
+			width:23px;
+			height:24px;
+			color:white;
+			font-size:1.1em;
+			right:1px;
+			top:1px;
+			position:absolute;
+			pointer-events:none;
+			background:#67c2a5;
+			border-radius:0 1 1 0;
+			padding-left:4px;
+			padding-top:4px;
+			margin-bottom:5px
+		}
+		.subconstraint{max-width:745px;}
+		.graph2{max-width:745px}
+		.hed{font-family:'Lato';font-size:22px;font-weight:700;}
+		.dek{font-family:'Lato';font-size:17px;margin-bottom:20px;}
+		.note{font-family:'Lato';font-size:11px;margin-top:20px;line-height:1.1;}
+		.styled-select select{
+			height:30px;
+			position:relative;
+			font-size:1em;
+			-moz-appearance:none;
+			-webkit-appearance:none;
+			padding:5px;
+			padding-right:29px;
+			margin:0;
+			border:1px solid black;
+			border-radius:2px;
+			background:white;
+			color:#555
+		}
+	</style>
+
+</head>
+
+<body>
+
+<p>Kombucha freegan cornhole taxidermy, slow-carb crucifix keytar lumbersexual. Art party leggings YOLO selfies. Hella lumbersexual gluten-free brunch plaid seitan ennui, pickled locavore banh mi thundercats disrupt tacos jean shorts. Whatever quinoa hammock butcher. Actually put a bird on it umami beard flannel. PBR&B deep v single-origin coffee portland ramps, franzen bitters meggings craft beer gluten-free. Irony locavore wayfarers gluten-free bicycle rights, cred retro gochujang pork belly</p>
+	
+	<div class='subconstraint'>
+		<div class='hed'>Placeholder</div>
+		<div class='dek'>More placeholder</div>
+		<div class='styled-select' style="display:inline-block">
+			<span class='select_carat'>
+				<select name="select" id='gender_select'>
+					<option value=0 selected>All</option> 
+					<option value=1>Women</option>
+					<option value=2>Men</option>
+				</select>
+			</span>
+		</div>
+		<div class='styled-select' style="display:inline-block">
+			<span class='select_carat'>
+				<select name="select" id='eth_select'>
+					<option value=0 selected>All</option> 
+					<option value=1>African American</option>
+					<option value=2>Asian</option>
+					<option value=3>Latino</option>
+					<option value=4>White</option>
+				</select>
+			</span>
+		</div>
+		<div class='styled-select' style="display:inline-block">
+			<span class='select_carat'>
+				<select name="select" id='ed_select'>
+					<option value=0 selected>All</option> 
+					<option value=1>Less than high school</option>
+					<option value=2>High school</option>
+					<option value=3>Some college</option>
+					<option value=4>College</option>
+					<option value=5>Advanced</option>
+				</select>
+			</span>
+		</div>
+		<input type="submit" class="gform_button button" value="ADD" onclick="">
+		<div>
+			<input type="submit" class="gform_button button" value="RESET" onclick="">
+			<input type="submit" class="gform_button button" value="DOWNLOAD IMAGE" onclick="">
+		</div>
+	</div>
+
+	<div id='constraint' class='graph2'>
+		<svg id="graph2" viewbox='0,0,745,300' ></svg>
+		<div class='note'>Note: This chart is updated monthly. Data is from the Census Bureau's Current Population Survey. Basic monthly data are used and all months are averaged together for each year. The survey was revised in 1989 and 1994; changes to both question wording and survey weights result in discontinuities in these years that may not be attributable to real changes in the economy. Recession data from: Federal Reserve Bank of St. Louis, NBER based Recession Indicators for the United States from the Period following the Peak through the Trough [USREC], retrieved from FRED, Federal Reserve Bank of St. Louis https://research.stlouisfed.org/fred2/series/USREC, March 1, 2016.</div>
+	</div>
+
+<p>Tote bag direct trade listicle, pug squid readymade cronut vegan mlkshk. Retro quinoa fingerstache viral, cardigan banh mi brooklyn intelligentsia cornhole microdosing direct trade irony gochujang truffaut. Direct trade kombucha pug tumblr. Cardigan microdosing brunch street art flexitarian normcore. Freegan slow-carb ethical, raw denim vegan paleo bushwick tumblr tofu hammock helvetica vinyl waistcoat. Try-hard pitchfork VHS before they sold out. Semiotics before they sold out portland, whatever pickled migas small batch chartreuse thundercats.</p>
+
+</body>
+
+<script defer>
+var g2 = Snap('#graph2')
+var color_scale=['#67c2a5','#fc8d62','#8da0cb','#e78ac3','#a6d854','#ffd92f','#e5c494','#b3b3b3']
+var g2data
+var gclicked=0
+var svgel=document.getElementById('graph2')
+var pt=svgel.createSVGPoint()
+var working=0
+var tbracket_data
+var max=13
+var min=5
+
+function cursorPoint(evt){
+	pt.x=evt.clientX;pt.y=evt.clientY
+	return pt.matrixTransform(svgel.getScreenCTM().inverse())
+}
+
+loadmain2('main2.csv',function(main2){
+	g2data=main2
+	var max_year=main[0][1]
+	var min_year=1976
+	var startmonth=main[0][2]
+	var endmonth=main[0][3]
+	maxtime=max_year+(1/12)*(endmonth-1)
+	mintime=min_year+(1/12)*(endmonth-1)
+
+	basekey_g2()
+	basegraph_g2(wide)
+	drawdata_g2(1,1,5,13)
+	mousetrack()
+})
+
+function loadmain2(file,callback){
+	var rawFile = new XMLHttpRequest();
+	rawFile.open("GET", file);
+	rawFile.onreadystatechange = function () {
+		if(rawFile.readyState === 4) {
+			if(rawFile.status === 200 || rawFile.status == 0) {
+				var text = rawFile.responseText;
+				text=text.split('\n')
+
+				for(var i=0;i<text.length;i++){
+					text[i]=text[i].split(',')
+				}
+
+				main=[]
+				for(var i=1;i<text.length;i++){
+					main.push([text[i][0],parseInt(text[i][1]),parseInt(text[i][2]),parseInt(text[i][3]),text[i][4],parseFloat(text[i][5]),parseFloat(text[i][6]),parseFloat(text[i][7]),parseFloat(text[i][8]),parseFloat(text[i][9]),parseFloat(text[i][10]),parseFloat(text[i][11]),parseFloat(text[i][12])])
+				}
+				callback(main)
+			}
+		}
+	}
+	rawFile.send(null);
+}
+
+function basekey_g2(){
+	var ft2=g2.rect(80,1,20,10).attr({fill:color_scale[0],'shape-rendering':'crispEdges',cursor:'pointer'})
+	var pt2=g2.rect(243.5,1,20,10).attr({fill:color_scale[1],'shape-rendering':'crispEdges',cursor:'pointer'})
+	var unemp2=g2.rect(407,1,20,10).attr({fill:color_scale[2],'shape-rendering':'crispEdges',cursor:'pointer'})
+	var disabled2=g2.rect(570.5,1,20,10).attr({fill:color_scale[3],'shape-rendering':'crispEdges',cursor:'pointer'})
+	var carer2=g2.rect(80,21,20,10).attr({fill:color_scale[4],'shape-rendering':'crispEdges',cursor:'pointer'})
+	var retired2=g2.rect(243.5,21,20,10).attr({fill:color_scale[5],'shape-rendering':'crispEdges',cursor:'pointer'})
+	var student2=g2.rect(407,21,20,10).attr({fill:color_scale[6],'shape-rendering':'crispEdges',cursor:'pointer'})
+	var other2=g2.rect(570.5,21,20,10).attr({fill:color_scale[7],'shape-rendering':'crispEdges',cursor:'pointer'})
+
+	var fttext2=g2.text(105,6,'Full-time employed').attr({'font-family':'Lato','text-anchor':'start','dominant-baseline':'central','font-size':'14px'})
+	var fttext2=g2.text(268.5,6,'Part-time employed').attr({'font-family':'Lato','text-anchor':'start','dominant-baseline':'central','font-size':'14px'})
+	var fttext2=g2.text(432,6,'Unemployed').attr({'font-family':'Lato','text-anchor':'start','dominant-baseline':'central','font-size':'14px'})
+	var fttext2=g2.text(595,6,'Retired').attr({'font-family':'Lato','text-anchor':'start','dominant-baseline':'central','font-size':'14px'})
+	var fttext2=g2.text(105,26,'Disabled').attr({'font-family':'Lato','text-anchor':'start','dominant-baseline':'central','font-size':'14px'})
+	var fttext2=g2.text(268.5,26,'Carer').attr({'font-family':'Lato','text-anchor':'start','dominant-baseline':'central','font-size':'14px'})
+	var fttext2=g2.text(432,26,'Student').attr({'font-family':'Lato','text-anchor':'start','dominant-baseline':'central','font-size':'14px'})
+	var fttext2=g2.text(595,26,'Other').attr({'font-family':'Lato','text-anchor':'start','dominant-baseline':'central','font-size':'14px'})
+}
+
+function basegraph_g2(wide){
+	// if pixels available >900ish, pass 1 to wide, else pass 0
+	if (wide==0){
+		g2width=745
+		g2height=800
+		document.getElementById('constraint').className=''
+		shape = document.getElementById("graph2");
+		shape.setAttribute("viewBox", "0,-15,745,755");
+	} else{
+		g2width=1045
+		g2height=615
+	}
+
+	g2ybounds=[55,g2height-125]
+	g2xbounds=[50,g2width-60]
+
+	// red cps change lines
+	g2.line(xvalue(1994,55),yvalue(1),xvalue(1994,55),yvalue(0)).attr({'stroke-width':1,'stroke':'red','shape-rendering':'crispEdges',type:'front'})
+	g2.line(xvalue(1989,55),yvalue(1),xvalue(1989,55),yvalue(0)).attr({'stroke-width':1,'stroke':'red','shape-rendering':'crispEdges',type:'front'})
+
+	// y-axis ticks
+	g2.text(44,yvalue(1)+6,'100%').attr({'font-family':'Lato','text-anchor':'end','font-size':'18px'})
+	g2.text(44,yvalue(.8)+6,'80%').attr({'font-family':'Lato','text-anchor':'end','font-size':'18px'})
+	g2.text(44,yvalue(.6)+6,'60%').attr({'font-family':'Lato','text-anchor':'end','font-size':'18px'})
+	g2.text(44,yvalue(.4)+6,'40%').attr({'font-family':'Lato','text-anchor':'end','font-size':'18px'})
+	g2.text(44,yvalue(.2)+6,'20%').attr({'font-family':'Lato','text-anchor':'end','font-size':'18px'})
+	g2.text(44,yvalue(0)+6,'0%').attr({'font-family':'Lato','text-anchor':'end','font-size':'18px'})
+
+	// x-axis ticks
+	g2.line(xvalue(Math.floor(maxtime)),g2ybounds[1],xvalue(Math.floor(maxtime)),g2ybounds[1]+5).attr({'stroke-width':1,'stroke':'black','shape-rendering':'crispEdges'})
+	g2.text(xvalue(Math.floor(maxtime)),g2ybounds[1]+23,Math.floor(maxtime)).attr({'font-family':'Lato','text-anchor':'middle','font-size':'18px'})
+
+	// draw axes - begin at about y=50, nothing but %s on the y-axis so you can start pretty tight
+	g2.line(50,55,50,g2height-125).attr({'stroke-width':1,'stroke':'black','shape-rendering':'crispEdges',type:'front'})
+	g2.line(50,g2height-125,g2width-60,g2height-125).attr({'stroke-width':1,'stroke':'black','shape-rendering':'crispEdges',type:'front'})
+
+	var temp=Math.floor(maxtime)
+	while(temp>mintime+5){
+		temp=temp-5
+		g2.line(xvalue(Math.floor(temp)),g2ybounds[1],xvalue(Math.floor(temp)),g2ybounds[1]+5).attr({'stroke-width':1,'stroke':'black','shape-rendering':'crispEdges'})
+		g2.text(xvalue(Math.floor(temp)),g2ybounds[1]+23,Math.floor(temp)).attr({'font-family':'Lato','text-anchor':'middle','font-size':'18px'})
+	}
+
+	var shade=g2.rect(142,g2ybounds[1]+43,47,14).attr({fill:'#ddd'})
+	var slider_label2=g2.text(g2xbounds[0],g2ybounds[1]+55,['Recessions are shaded, ','red lines',' indicate a major change to the CPS survey']).attr({'font-family':'Lato','text-anchor':'start','font-size':'14px'})
+	slider_label2.selectAll("tspan")[1].attr({fill:'red'})
+
+	// draw recession shading
+	readcsv('recessions.csv',1,function(rec){
+		interval=xvalue(1/12)-xvalue(0)
+		int=0
+		for(var i=0;i<rec.length;i++){
+			if(int==0){
+				if(rec[i][1]==1){
+					startint=rec[i][0]
+					intlength=1
+					int=1
+				}
+			} else{
+				if(rec[i][1]==1){
+					intlength=intlength+1
+				} else{
+					g2.rect(xvalue(startint),g2ybounds[0],interval*intlength,(g2ybounds[1]-g2ybounds[0])).attr({fill:'black',opacity:.1,'shape-rendering':'crispEdges','stroke-width':0,type:'front'})
+					int=0
+				}
+			}
+
+		}
+	})
+}
+
+function drawdata_g2(bracket,newg,min,max){
+	working=1
+	// bracket = 0,1,2,3,4,5
+	bracketlist=['<25','25-34','35-44','45-54','>54','25-54']
+
+	// look at all this fancy no-loop shit
+	var bracket_data=g2data.filter(function(obs){
+		return obs[0]===bracketlist[bracket]
+	})
+	tbracket_data=bracket_data.map(function(obs){
+		return [obs[0],obs[1],obs[2],obs[3],obs[4],yvalue(obs[5]),yvalue(obs[6]),yvalue(obs[7]),yvalue(obs[8]),yvalue(obs[9]),yvalue(obs[10]),yvalue(obs[11]),yvalue(obs[12])]
+	})
+
+	// n observations in tbracket_data where n=years in dataset, each with 8 category variables numbered 5-12
+	var path_list=[]
+	var years=tbracket_data.length
+	var stringstart=''+g2ybounds[1]+','
+	var base=new Array(years+1).join(stringstart).split(',').map(parseFloat)
+	var xinterval=(g2xbounds[1]-g2xbounds[0])/(tbracket_data.length-1)
+
+	for(var i=5;i<13;i++){
+		if(i<min){
+			// give these areas flat lines
+			path='M'+g2xbounds[0]+','+g2ybounds[1]
+
+			// travel along the base path
+			for(var j=1;j<tbracket_data.length;j++){
+				path=path+'L'+(g2xbounds[0]+(xinterval*j))+','+g2ybounds[1]
+			}
+
+			// now the new 'top' path
+			for(var j=0;j<tbracket_data.length;j++){
+				path=path+'L'+(g2xbounds[0]+xinterval*(tbracket_data.length-j-1))+','+(g2ybounds[1]-.1)
+			}
+
+			// finally drop back down to the old base
+			path=path+'L'+g2xbounds[0]+','+g2ybounds[1]
+			path_list.push(path)
+		} else if(i>max){
+			// these areas are also flat but go above the selected area
+			path='M'+g2xbounds[0]+','+g2ybounds[0]
+			var base0=base[0]
+
+			// travel along the base path
+			for(var j=1;j<tbracket_data.length;j++){
+				path=path+'L'+(g2xbounds[0]+(xinterval*j))+','+g2ybounds[0]
+			}
+
+			// now the new 'top' path
+			for(var j=0;j<tbracket_data.length;j++){
+				path=path+'L'+(g2xbounds[0]+xinterval*(tbracket_data.length-j-1))+','+(g2ybounds[0]+.1)
+				// base[tbracket_data.length-1-(1*j)]=(base[tbracket_data.length-1-(1*j)]-(g2ybounds[1]-tbracket_data[j][i]))
+			}
+
+			// finally drop back down to the old base
+			path=path+'L'+g2xbounds[0]+','+g2ybounds[0]
+			path_list.push(path)
+		} else {
+			path='M'+g2xbounds[0]+','+base[0]
+			var base0=base[0]
+
+			// travel along the base path
+			for(var j=1;j<tbracket_data.length;j++){
+				path=path+'L'+(g2xbounds[0]+(xinterval*j))+','+base[j]
+			}
+
+			// now the new 'top' path
+			for(var j=0;j<tbracket_data.length;j++){
+				path=path+'L'+(g2xbounds[0]+xinterval*(tbracket_data.length-j-1))+','+(base[tbracket_data.length-1-(1*j)]-(g2ybounds[1]-tbracket_data[j][i]))
+				base[tbracket_data.length-1-(1*j)]=(base[tbracket_data.length-1-(1*j)]-(g2ybounds[1]-tbracket_data[j][i]))
+			}
+
+			// finally drop back down to the old base
+			path=path+'L'+g2xbounds[0]+','+base0
+			path_list.push(path)
+		}
+	}
+
+	for(var i=0;i<path_list.length;i++){
+		if(newg==1){
+			var areag2=g2.path(path_list[i]).attr({fill:color_scale[i],type:'grouppath',column:i+5,cursor:'pointer'})
+			var areafake=g2.path(path_list[i]).attr({fill:color_scale[i],type:'front2',column:i+5,opacity:0,cursor:'pointer'})
+			areafake.hover(highlight_area,unhighlight_area)
+			areafake.click(g2clickredraw)
+			working=0
+		} else{
+			if(i==path_list.length-1){
+				g2.select("path[type='grouppath'][column='"+(i+5)+"']").animate({path:path_list[i]},1000,function(){
+					working=0
+					update_per()
+				})
+			} else{
+				g2.select("path[type='grouppath'][column='"+(i+5)+"']").animate({path:path_list[i]},1000)
+			}
+			g2.select("path[type='front2'][column='"+(i+5)+"']").attr({path:path_list[i]})
+		}
+	}
+
+	g2.append(g2.selectAll("[type='front']"))
+	g2.append(g2.selectAll("[type='front2']"))
+
+	// uncomment the grid below for diagnostics
+	// for(var j=0;j<tbracket_data.length;j++){
+	// 	g2.line(g2xbounds[0]+xinterval*j,50,g2xbounds[0]+xinterval*j,500).attr({'stroke-width':1,stroke:'black','stroke-opacity':.1})
+	// }
+
+	// g2.line(g2xbounds[0],yvalue(.1),g2xbounds[1],yvalue(.1)).attr({'stroke-width':1,stroke:'black','stroke-opacity':.1})
+	// g2.line(g2xbounds[0],yvalue(.2),g2xbounds[1],yvalue(.2)).attr({'stroke-width':1,stroke:'black','stroke-opacity':.1})
+	// g2.line(g2xbounds[0],yvalue(.3),g2xbounds[1],yvalue(.3)).attr({'stroke-width':1,stroke:'black','stroke-opacity':.1})
+	// g2.line(g2xbounds[0],yvalue(.4),g2xbounds[1],yvalue(.4)).attr({'stroke-width':1,stroke:'black','stroke-opacity':.1})
+	// g2.line(g2xbounds[0],yvalue(.5),g2xbounds[1],yvalue(.5)).attr({'stroke-width':1,stroke:'black','stroke-opacity':.1})
+	// g2.line(g2xbounds[0],yvalue(.6),g2xbounds[1],yvalue(.6)).attr({'stroke-width':1,stroke:'black','stroke-opacity':.1})
+	// g2.line(g2xbounds[0],yvalue(.7),g2xbounds[1],yvalue(.7)).attr({'stroke-width':1,stroke:'black','stroke-opacity':.1})
+	// g2.line(g2xbounds[0],yvalue(.8),g2xbounds[1],yvalue(.8)).attr({'stroke-width':1,stroke:'black','stroke-opacity':.1})
+	// g2.line(g2xbounds[0],yvalue(.9),g2xbounds[1],yvalue(.9)).attr({'stroke-width':1,stroke:'black','stroke-opacity':.1})
+	// g2.line(g2xbounds[0],yvalue(1),g2xbounds[1],yvalue(1)).attr({'stroke-width':1,stroke:'black','stroke-opacity':.1})
+}
+
+function g2clickredraw(ev){
+	if(working==0){
+		// unhighlight_area(ev)
+		a=document.getElementById('g2select').value
+		if(gclicked==0){
+			item=Snap(ev.target)
+			column=item.attr('column')
+			gclicked=1
+			drawdata_g2(parseInt(a),0,parseInt(column),parseInt(column))
+			min=parseInt(column)
+			max=parseInt(column)
+		} else if(gclicked==1){
+			gclicked=0
+			min=5
+			max=13
+			drawdata_g2(parseInt(a),0,5,13)
+		}
+	}
+}
+
+function yvalue(y){
+	return g2ybounds[0]+g2ybounds[1]-(g2ybounds[0]+(g2ybounds[1]-g2ybounds[0])*(y))
+}
+
+function xvalue(x){
+	return g2xbounds[0]+(g2xbounds[1]-g2xbounds[0])*((x-mintime)/(maxtime-mintime))
+}
+
+function reversey(coord){
+	return Math.round(100*(g2ybounds[1]-coord)/(g2ybounds[1]-g2ybounds[0]))
+}
+
+function reversex(coord){
+	return Math.floor(mintime+(maxtime-mintime)*((coord-g2xbounds[0])/(g2xbounds[1]-g2xbounds[0])))
+}
+
+function g2redraw(){
+	a=document.getElementById('g2select').value
+	drawdata_g2(parseInt(a),0,min,max)
+}
+
+function readcsv(file,dateflag,callback) {
+	var rawFile = new XMLHttpRequest();
+	rawFile.open("GET", file);
+	rawFile.onreadystatechange = function () {
+		if(rawFile.readyState === 4) {
+			if(rawFile.status === 200 || rawFile.status == 0) {
+				var text = rawFile.responseText;
+				text=text.split('\n')
+				for(var i=0;i<text.length;i++){
+					text[i]=text[i].split(',')
+				}
+				var final=[]
+
+				// return years only
+				if(dateflag==0){
+					for(var i=1;i<text.length;i++){
+						a=[parseInt(text[i][0].split('-')[0]),parseFloat(text[i][1])]
+						if(!isNaN(a[0]) & !isNaN(a[1])){
+							final.push(a)
+						}
+					}
+				}
+
+				// convert months to fractions and return years+(months-1)/12
+				if(dateflag==1){
+					for(var i=1;i<text.length;i++){
+						a=[parseFloat(text[i][0].split('-')[0])+(parseFloat(text[i][0].split('-')[1])-1)/12,parseFloat(text[i][1])]
+						if(!isNaN(a[0]) & !isNaN(a[1])){
+							final.push(a)
+						}
+					}
+				}
+				callback(final)
+			}
+		}
+	}
+	rawFile.send(null);
+}
+
+function highlight_area(ev){
+	temp=Snap(ev.target)
+	item=g2.select("[type='grouppath'][column='"+temp.attr('column')+"']")
+
+	g2.append(item)
+	g2.append(g2.selectAll("[type='front']"))
+	g2.append(g2.selectAll("[type='front2']"))
+
+	item.attr({'fill-opacity':.7})
+	item.attr({'stroke':item.attr('fill'),'stroke-width':1})
+}
+
+function unhighlight_area(ev){
+	temp=Snap(ev.target)
+	item=g2.select("[type='grouppath'][column='"+temp.attr('column')+"']")
+	item.attr({'fill-opacity':1})
+	item.attr({'stroke-width':0})
+}
+
+//year tracker
+function mousetrack(){
+	var mouselinex=g2.line(xvalue(2009),g2ybounds[0],xvalue(2009),g2ybounds[1]-.5).attr({stroke:'#000','stroke-width':1,type:'front','shape-rendering':'crispEdges','stroke-dasharray':[8,8]})
+	var mouseliney=g2.line(g2xbounds[0],yvalue(.6),g2xbounds[1],yvalue(.6)).attr({stroke:'#000','stroke-width':1,type:'front','shape-rendering':'crispEdges','stroke-dasharray':[8,8]})
+	// var mouse_year=g2.text(xvalue(2009)+4,g2ybounds[0]-2,'2009').attr({'font-family':'Lato','text-anchor':'middle','font-size':'18px',type:'front'})
+	// var mouse_percent=g2.text(g2xbounds[1]+3,yvalue(.6)+5,'60%').attr({'font-family':'Lato','text-anchor':'start','font-size':'18px',type:'front'})
+	var mousebox=g2.rect(Math.round(xvalue(2009)+10),Math.round(yvalue(.6)-60),50,50).attr({fill:'white','stroke-width':1,'stroke':'black','shape-rendering':'crispEdges',type:'front2'})
+	mbox1=g2.text(xvalue(2009)+35,yvalue(.6)-39,'2009').attr({'font-family':'Lato','text-anchor':'middle','font-size':'18px',type:'front2'})
+	var year=2009
+	var mouse_data=tbracket_data.filter(function(obs){
+		return obs[1]===year
+	})
+	var per=(reversey(mouse_data[0][5])).toFixed(0)+'%'
+	mbox2=g2.text(xvalue(2009)+35,yvalue(.6)-18,per).attr({'font-family':'Lato','text-anchor':'middle','font-size':'18px',type:'front2',fill:color_scale[0],'font-weight':'bold'})
+	g2.append(g2.selectAll("[type='front']"))
+	g2.append(g2.selectAll("[type='front2']"))
+
+	test=function OnMouseMove(loc,evt,callback) {
+		if(working==0){
+			var tempxloc=Math.round(loc['x'])
+			var tempyloc=Math.round(loc['y'])
+
+			if(tempxloc>=g2xbounds[0] & tempxloc<=g2xbounds[1] & tempyloc>=g2ybounds[0] & tempyloc<=g2ybounds[1]){
+				xloc=Math.round(loc['x'])
+				yloc=Math.round(loc['y'])
+				var item=Snap(evt.target)
+				mouselinex.attr({x1:xloc,x2:xloc})
+				mouseliney.attr({y1:yloc,y2:yloc})
+				mousebox.attr({x:xloc+10,y:yloc-60})
+				var year=reversex(xloc)
+
+				var mouse_data=tbracket_data.filter(function(obs){
+					return obs[1]===year
+				})
+				per=(reversey(mouse_data[0][item.attr('column')])).toFixed(0)+'%'
+
+				if(per=='NaN%'){per='-'}
+
+				mbox1.attr({text:year,x:xloc+35,y:yloc-39})
+				mbox2.attr({text:per,y:yloc-18,x:xloc+35,fill:item.attr('fill')})
+				callback()
+			}
+		}
+	}
+
+	svgel.addEventListener('mousemove',function(evt){
+		var loc=cursorPoint(evt)
+		test(loc,evt,function(){
+			g2.append(g2.selectAll("[type='front2']"))
+		})
+	})
+}
+
+function update_per(){
+	var item=Snap.getElementByPoint(xloc,yloc)
+	var year=reversex(xloc)
+
+	var mouse_data=tbracket_data.filter(function(obs){
+		return obs[1]===year
+	})
+	per=(reversey(mouse_data[0][item.attr('column')])).toFixed(0)+'%'
+
+	if(per=='NaN%'){per='-'}
+
+	mbox1.attr({text:year})
+	mbox2.attr({text:per,fill:item.attr('fill')})
+}
+
+</script>
+
+</html>
