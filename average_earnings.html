@@ -5,14 +5,27 @@
 <head>
 	<title>Average Wages by Demographics</title>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/snap.svg/0.4.1/snap.svg-min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 	<link href="css/materialdesignicons.min.css" media="all" rel="stylesheet" type="text/css" />
 
 	<style>
 		@import url(https://fonts.googleapis.com/css?family=Lato:400,700);
 		body{width:745px;margin-left:auto;margin-right:auto;padding-top:60px;}
+		button{
+			height:30px;
+			border:1px solid black;
+			background:#67c2a5;
+			font-size:1em;
+			border-radius:2px;
+			color:white;
+			margin:10 0 0 0;
+			padding:4 10 5 10;
+			cursor:pointer;
+			font-family:Lato;
+		}
 		.select_carat{position:relative;display:inline-block;}
 		.select_carat:after{
-			content:"\f236";
+			content:'\F236';
 			font-family:"Material Design Icons";
 			font-weight:700;
 			width:23px;
@@ -29,8 +42,13 @@
 			padding-top:4px;
 			margin-bottom:5px
 		}
-		.subconstraint{max-width:745px;}
-		.graph2{max-width:745px}
+		.material-icons{
+			font-size:1em;
+			padding:0;
+			margin:0;
+		}
+		.subconstraint{max-width:745px;text-align:center;}
+		.graph2{max-width:745px;height:150px;overflow:hidden;}
 		.hed{font-family:'Lato';font-size:22px;font-weight:700;}
 		.dek{font-family:'Lato';font-size:17px;margin-bottom:20px;}
 		.note{font-family:'Lato';font-size:11px;margin-top:20px;line-height:1.1;}
@@ -56,9 +74,9 @@
 
 <p>Kombucha freegan cornhole taxidermy, slow-carb crucifix keytar lumbersexual. Art party leggings YOLO selfies. Hella lumbersexual gluten-free brunch plaid seitan ennui, pickled locavore banh mi thundercats disrupt tacos jean shorts. Whatever quinoa hammock butcher. Actually put a bird on it umami beard flannel. PBR&B deep v single-origin coffee portland ramps, franzen bitters meggings craft beer gluten-free. Irony locavore wayfarers gluten-free bicycle rights, cred retro gochujang pork belly</p>
 	
+	<div class='hed'>Placeholder</div>
+	<div class='dek'>More placeholder</div>
 	<div class='subconstraint'>
-		<div class='hed'>Placeholder</div>
-		<div class='dek'>More placeholder</div>
 		<div class='styled-select' style="display:inline-block">
 			<span class='select_carat'>
 				<select name="select" id='gender_select'>
@@ -74,7 +92,7 @@
 					<option value=0 selected>All</option> 
 					<option value=1>African American</option>
 					<option value=2>Asian</option>
-					<option value=3>Latino</option>
+					<option value=3>Hispanic or Latino</option>
 					<option value=4>White</option>
 				</select>
 			</span>
@@ -91,16 +109,16 @@
 				</select>
 			</span>
 		</div>
-		<input type="submit" class="gform_button button" value="ADD" onclick="">
+		<button class="button" onclick="addnew()">ADD</button>
 		<div>
-			<input type="submit" class="gform_button button" value="RESET" onclick="">
-			<input type="submit" class="gform_button button" value="DOWNLOAD IMAGE" onclick="">
+			<button class="button" onclick="redraw(1000)"><span class="mdi mdi-autorenew"></span> START OVER</button>
+			<button class="button" onclick="download()"><span class="mdi mdi-download"></span> DOWNLOAD IMAGE</button>
 		</div>
 	</div>
 
 	<div id='constraint' class='graph2'>
-		<svg id="graph2" viewbox='0,0,745,300' ></svg>
-		<div class='note'>Note: This chart is updated monthly. Data is from the Census Bureau's Current Population Survey. Basic monthly data are used and all months are averaged together for each year. The survey was revised in 1989 and 1994; changes to both question wording and survey weights result in discontinuities in these years that may not be attributable to real changes in the economy. Recession data from: Federal Reserve Bank of St. Louis, NBER based Recession Indicators for the United States from the Period following the Peak through the Trough [USREC], retrieved from FRED, Federal Reserve Bank of St. Louis https://research.stlouisfed.org/fred2/series/USREC, March 1, 2016.</div>
+		<svg id="avg_earn" viewbox='0,0,745,18000' ></svg>
+		<div class='note'>Note: Data is from the Census Bureau's Current Population Survey.</div>
 	</div>
 
 <p>Tote bag direct trade listicle, pug squid readymade cronut vegan mlkshk. Retro quinoa fingerstache viral, cardigan banh mi brooklyn intelligentsia cornhole microdosing direct trade irony gochujang truffaut. Direct trade kombucha pug tumblr. Cardigan microdosing brunch street art flexitarian normcore. Freegan slow-carb ethical, raw denim vegan paleo bushwick tumblr tofu hammock helvetica vinyl waistcoat. Try-hard pitchfork VHS before they sold out. Semiotics before they sold out portland, whatever pickled migas small batch chartreuse thundercats.</p>
@@ -108,435 +126,226 @@
 </body>
 
 <script defer>
-var g2 = Snap('#graph2')
-var color_scale=['#67c2a5','#fc8d62','#8da0cb','#e78ac3','#a6d854','#ffd92f','#e5c494','#b3b3b3']
-var g2data
-var gclicked=0
-var svgel=document.getElementById('graph2')
-var pt=svgel.createSVGPoint()
-var working=0
-var tbracket_data
-var max=13
-var min=5
+var earn_chart = Snap('#avg_earn')
+var earn_chart_data = [
+	{'gender': 'Men', 't2': '36.97', 't3': '81.12', 't1': '16.85', 'education': 'Advanced', 'ethnicity': 'All', 'descriptor':'Men with advanced degrees'}, 
+	{'gender': 'Men', 't2': '37.50', 't3': '81.12', 't1': '17.31', 'education': 'Advanced', 'ethnicity': 'White', 'descriptor':'White men with advanced degrees'}, 
+	{'gender': 'Men', 't2': '39.95', 't3': '81.12', 't1': '17.78', 'education': 'Advanced', 'ethnicity': 'Asian', 'descriptor':'Asian men with advanced degrees'}, 
+	{'gender': 'Men', 't2': '33.22', 't3': '73.75', 't1': '14.25', 'education': 'Advanced', 'ethnicity': 'Hispanic or Latino', 'descriptor':'Hispanic or Latino men with advanced degrees'}, 
+	{'gender': 'All', 't2': '36.08', 't3': '72.29', 't1': '15.81', 'education': 'Advanced', 'ethnicity': 'Asian', 'descriptor':'Asians with advanced degrees'}, 
+	{'gender': 'All', 't2': '32.27', 't3': '69.25', 't1': '15.65', 'education': 'Advanced', 'ethnicity': 'White', 'descriptor':'Whites with advanced degrees'}, 
+	{'gender': 'All', 't2': '32.01', 't3': '68.67', 't1': '15.37', 'education': 'Advanced', 'ethnicity': 'All', 'descriptor':'All individuals with advanced degrees'}, 
+	{'gender': 'Men', 't2': '30.41', 't3': '67.31', 't1': '14.30', 'education': 'Advanced', 'ethnicity': 'African American', 'descriptor':'African American men with advanced degrees'}, 
+	{'gender': 'Men', 't2': '29.36', 't3': '64.54', 't1': '13.65', 'education': 'College', 'ethnicity': 'White', 'descriptor':'White men with college degrees'}, 
+	{'gender': 'Women', 't2': '30.55', 't3': '63.62', 't1': '14.42', 'education': 'Advanced', 'ethnicity': 'Asian', 'descriptor':'Asian women with advanced degrees'}, 
+	{'gender': 'All', 't2': '29.34', 't3': '62.50', 't1': '13.75', 'education': 'Advanced', 'ethnicity': 'Hispanic or Latino', 'descriptor':'Hispanics or Latinos with advanced degrees'}, 
+	{'gender': 'Men', 't2': '28.50', 't3': '61.15', 't1': '12.91', 'education': 'College', 'ethnicity': 'All', 'descriptor':'Men with college degrees'}, 
+	{'gender': 'Men', 't2': '29.76', 't3': '60.80', 't1': '12.21', 'education': 'College', 'ethnicity': 'Asian', 'descriptor':'Asian men with college degrees'}, 
+	{'gender': 'Men', 't2': '23.88', 't3': '57.94', 't1': '9.77', 'education': 'All', 'ethnicity': 'Asian', 'descriptor':'Asian men'}, 
+	{'gender': 'Women', 't2': '28.85', 't3': '57.76', 't1': '14.89', 'education': 'Advanced', 'ethnicity': 'White', 'descriptor':'White women with advanced degrees'}, 
+	{'gender': 'Women', 't2': '28.64', 't3': '57.74', 't1': '14.57', 'education': 'Advanced', 'ethnicity': 'All', 'descriptor':'Women with advanced degrees'}, 
+	{'gender': 'All', 't2': '27.80', 't3': '57.23', 't1': '13.71', 'education': 'Advanced', 'ethnicity': 'African American', 'descriptor':'African Americans with advanced degrees'}, 
+	{'gender': 'All', 't2': '26.36', 't3': '55.28', 't1': '11.60', 'education': 'College', 'ethnicity': 'Asian', 'descriptor':'Asians with college degrees'}, 
+	{'gender': 'All', 't2': '25.45', 't3': '54.96', 't1': '12.21', 'education': 'College', 'ethnicity': 'White', 'descriptor':'Whites with college degrees'}, 
+	{'gender': 'All', 't2': '25.00', 't3': '52.95', 't1': '12.00', 'education': 'College', 'ethnicity': 'All', 'descriptor':'All individuals with college degrees'}, 
+	{'gender': 'Women', 't2': '26.17', 't3': '52.88', 't1': '13.47', 'education': 'Advanced', 'ethnicity': 'African American', 'descriptor':'African American women with advanced degrees'}, 
+	{'gender': 'All', 't2': '20.65', 't3': '51.98', 't1': '9.22', 'education': 'All', 'ethnicity': 'Asian', 'descriptor':'Asians'}, 
+	{'gender': 'Women', 't2': '26.29', 't3': '51.78', 't1': '13.23', 'education': 'Advanced', 'ethnicity': 'Hispanic or Latino', 'descriptor':'Hispanic or Latino women with advanced degrees'}, 
+	{'gender': 'Men', 't2': '24.78', 't3': '51.63', 't1': '11.50', 'education': 'College', 'ethnicity': 'Hispanic or Latino', 'descriptor':'Hispanic or Latino men with college degrees'}, 
+	{'gender': 'Men', 't2': '21.79', 't3': '50.54', 't1': '10.00', 'education': 'All', 'ethnicity': 'White', 'descriptor':'White men'}, 
+	{'gender': 'Women', 't2': '24.04', 't3': '48.53', 't1': '11.02', 'education': 'College', 'ethnicity': 'Asian', 'descriptor':'Asian women with college degrees'}, 
+	{'gender': 'Men', 't2': '19.61', 't3': '47.44', 't1': '9.22', 'education': 'All', 'ethnicity': 'All', 'descriptor':'Men'}, 
+	{'gender': 'Men', 't2': '23.31', 't3': '47.44', 't1': '11.43', 'education': 'College', 'ethnicity': 'African American', 'descriptor':'African American men with college degrees'}, 
+	{'gender': 'All', 't2': '22.03', 't3': '47.34', 't1': '10.51', 'education': 'College', 'ethnicity': 'Hispanic or Latino', 'descriptor':'Hispanics or Latinos with college degrees'}, 
+	{'gender': 'Women', 't2': '22.60', 't3': '46.31', 't1': '11.36', 'education': 'College', 'ethnicity': 'White', 'descriptor':'White women with college degrees'}, 
+	{'gender': 'Women', 't2': '18.40', 't3': '45.80', 't1': '8.96', 'education': 'All', 'ethnicity': 'Asian', 'descriptor':'Asian women'}, 
+	{'gender': 'Women', 't2': '22.33', 't3': '45.80', 't1': '11.07', 'education': 'College', 'ethnicity': 'All', 'descriptor':'Women'}, 
+	{'gender': 'All', 't2': '19.57', 't3': '45.44', 't1': '9.16', 'education': 'All', 'ethnicity': 'White', 'descriptor':'Whites'}, 
+	{'gender': 'All', 't2': '22.06', 't3': '44.80', 't1': '11.01', 'education': 'College', 'ethnicity': 'African American', 'descriptor':'African Americans with college degrees'}, 
+	{'gender': 'Women', 't2': '21.08', 't3': '43.27', 't1': '10.69', 'education': 'College', 'ethnicity': 'African American', 'descriptor':'African American women with college degrees'}, 
+	{'gender': 'All', 't2': '17.81', 't3': '42.59', 't1': '8.91', 'education': 'All', 'ethnicity': 'All', 'descriptor':'All individuals'}, 
+	{'gender': 'Women', 't2': '20.02', 't3': '40.54', 't1': '10.03', 'education': 'College', 'ethnicity': 'Hispanic or Latino', 'descriptor':'Hispanic or Latino women with college degrees'}, 
+	{'gender': 'Men', 't2': '19.41', 't3': '39.60', 't1': '9.36', 'education': 'Some college', 'ethnicity': 'White', 'descriptor':'White men with some college'}, 
+	{'gender': 'Women', 't2': '17.37', 't3': '39.15', 't1': '8.78', 'education': 'All', 'ethnicity': 'White', 'descriptor':'White women'}, 
+	{'gender': 'Men', 't2': '18.07', 't3': '37.82', 't1': '9.16', 'education': 'Some college', 'ethnicity': 'All', 'descriptor':'Men with some college'}, 
+	{'gender': 'Women', 't2': '16.02', 't3': '37.54', 't1': '8.50', 'education': 'All', 'ethnicity': 'All', 'descriptor':'Women'}, 
+	{'gender': 'Men', 't2': '16.87', 't3': '36.09', 't1': '9.00', 'education': 'Some college', 'ethnicity': 'Asian', 'descriptor':'Asian men with some college'}, 
+	{'gender': 'Men', 't2': '15.49', 't3': '35.73', 't1': '8.43', 'education': 'All', 'ethnicity': 'African American', 'descriptor':'African American men'}, 
+	{'gender': 'All', 't2': '16.91', 't3': '35.63', 't1': '8.96', 'education': 'Some college', 'ethnicity': 'White', 'descriptor':'Whites with some college'}, 
+	{'gender': 'Men', 't2': '18.00', 't3': '34.79', 't1': '9.31', 'education': 'High school', 'ethnicity': 'White', 'descriptor':'White men with high school diploma'}, 
+	{'gender': 'All', 't2': '14.90', 't3': '34.20', 't1': '8.26', 'education': 'All', 'ethnicity': 'African American', 'descriptor':'African Americans'}, 
+	{'gender': 'All', 't2': '15.89', 't3': '34.00', 't1': '8.75', 'education': 'Some college', 'ethnicity': 'All', 'descriptor':'All individuals with some college'}, 
+	{'gender': 'Men', 't2': '15.81', 't3': '33.94', 't1': '8.96', 'education': 'Some college', 'ethnicity': 'Hispanic or Latino', 'descriptor':'Hispanic or Latino men with some college'}, 
+	{'gender': 'Men', 't2': '14.50', 't3': '33.26', 't1': '8.51', 'education': 'All', 'ethnicity': 'Hispanic or Latino', 'descriptor':'Hispanic or Latino men'}, 
+	{'gender': 'All', 't2': '15.27', 't3': '33.21', 't1': '8.65', 'education': 'Some college', 'ethnicity': 'Asian', 'descriptor':'Asians with some college'}, 
+	{'gender': 'Men', 't2': '16.24', 't3': '32.54', 't1': '9.00', 'education': 'High school', 'ethnicity': 'All', 'descriptor':'Men with high school diplomas'}, 
+	{'gender': 'Women', 't2': '14.25', 't3': '32.50', 't1': '8.15', 'education': 'All', 'ethnicity': 'African American', 'descriptor':'African American women'}, 
+	{'gender': 'All', 't2': '15.73', 't3': '31.34', 't1': '8.76', 'education': 'High school', 'ethnicity': 'White', 'descriptor':'Whites with high school diplomas'}, 
+	{'gender': 'All', 't2': '13.71', 't3': '31.29', 't1': '8.26', 'education': 'All', 'ethnicity': 'Hispanic or Latino', 'descriptor':'Hispanics or Latinos'}, 
+	{'gender': 'Men', 't2': '15.18', 't3': '30.89', 't1': '8.51', 'education': 'Some college', 'ethnicity': 'African American', 'descriptor':'African American men with some college'}, 
+	{'gender': 'Women', 't2': '15.02', 't3': '30.88', 't1': '8.51', 'education': 'Some college', 'ethnicity': 'White', 'descriptor':'White women with some college'}, 
+	{'gender': 'All', 't2': '14.50', 't3': '30.54', 't1': '8.51', 'education': 'Some college', 'ethnicity': 'Hispanic or Latino', 'descriptor':'Hispanics or Latinos with some college'}, 
+	{'gender': 'Men', 't2': '14.76', 't3': '29.89', 't1': '8.70', 'education': 'High school', 'ethnicity': 'Asian', 'descriptor':'Asian men with high school diplomas'}, 
+	{'gender': 'Women', 't2': '14.31', 't3': '29.86', 't1': '8.43', 'education': 'Some college', 'ethnicity': 'Asian', 'descriptor':'Asian women with some college'}, 
+	{'gender': 'Women', 't2': '14.46', 't3': '29.79', 't1': '8.43', 'education': 'Some college', 'ethnicity': 'All', 'descriptor':'Women with some college'}, 
+	{'gender': 'All', 't2': '14.68', 't3': '29.53', 't1': '8.45', 'education': 'High school', 'ethnicity': 'All', 'descriptor':'All individuals with high school diplomas'}, 
+	{'gender': 'Women', 't2': '12.65', 't3': '28.83', 't1': '8.14', 'education': 'All', 'ethnicity': 'Hispanic or Latino', 'descriptor':'Hispanic or Latino women'}, 
+	{'gender': 'All', 't2': '14.02', 't3': '28.57', 't1': '8.34', 'education': 'Some college', 'ethnicity': 'African American', 'descriptor':'African Americans with some college'}, 
+	{'gender': 'Men', 't2': '14.23', 't3': '28.50', 't1': '8.61', 'education': 'High school', 'ethnicity': 'Hispanic or Latino', 'descriptor':'Hispanic or Latino men with high school diplomas'}, 
+	{'gender': 'All', 't2': '13.42', 't3': '27.48', 't1': '8.28', 'education': 'High school', 'ethnicity': 'Asian', 'descriptor':'Asians with high school diplomas'}, 
+	{'gender': 'Men', 't2': '13.89', 't3': '26.85', 't1': '8.26', 'education': 'High school', 'ethnicity': 'African American', 'descriptor':'African American men with high school diplomas'}, 
+	{'gender': 'Women', 't2': '13.33', 't3': '26.42', 't1': '8.30', 'education': 'Some college', 'ethnicity': 'Hispanic or Latino', 'descriptor':'Hispanic or Latino women with some college'}, 
+	{'gender': 'Women', 't2': '13.23', 't3': '26.36', 't1': '8.25', 'education': 'Some college', 'ethnicity': 'African American', 'descriptor':'African American women with some college'}, 
+	{'gender': 'All', 't2': '13.00', 't3': '26.03', 't1': '8.26', 'education': 'High school', 'ethnicity': 'Hispanic or Latino', 'descriptor':'Hispanics or Latinos with high school diplomas'}, 
+	{'gender': 'Women', 't2': '13.52', 't3': '25.67', 't1': '8.26', 'education': 'High school', 'ethnicity': 'White', 'descriptor':'White women with high school diplomas'}, 
+	{'gender': 'All', 't2': '12.65', 't3': '25.00', 't1': '8.01', 'education': 'High school', 'ethnicity': 'African American', 'descriptor':'African Americans with high school diplomas'}, 
+	{'gender': 'Women', 't2': '12.72', 't3': '24.55', 't1': '8.14', 'education': 'High school', 'ethnicity': 'All', 'descriptor':'Women with high school diplomas'}, 
+	{'gender': 'Women', 't2': '12.50', 't3': '24.02', 't1': '8.14', 'education': 'High school', 'ethnicity': 'Asian', 'descriptor':'Asian women with high school diplomas'}, 
+	{'gender': 'Men', 't2': '11.04', 't3': '23.23', 't1': '7.55', 'education': 'Less than high school', 'ethnicity': 'White', 'descriptor':'White men without high school diplomas'}, 
+	{'gender': 'Women', 't2': '11.75', 't3': '22.03', 't1': '8.02', 'education': 'High school', 'ethnicity': 'Hispanic or Latino', 'descriptor':'Hispanic or Latino women with high school diplomas'}, 
+	{'gender': 'Women', 't2': '11.76', 't3': '21.69', 't1': '7.91', 'education': 'High school', 'ethnicity': 'African American', 'descriptor':'African American women with high school diplomas'}, 
+	{'gender': 'Men', 't2': '11.31', 't3': '21.38', 't1': '7.74', 'education': 'Less than high school', 'ethnicity': 'All', 'descriptor':'Men without high school diplomas'}, 
+	{'gender': 'Men', 't2': '11.70', 't3': '20.82', 't1': '8.14', 'education': 'Less than high school', 'ethnicity': 'Hispanic or Latino', 'descriptor':'Hispanic or Latino men without high school diplomas'}, 
+	{'gender': 'All', 't2': '10.01', 't3': '20.65', 't1': '7.49', 'education': 'Less than high school', 'ethnicity': 'White', 'descriptor':'Whites without high school diplomas'}, 
+	{'gender': 'Men', 't2': '11.06', 't3': '20.24', 't1': '7.74', 'education': 'Less than high school', 'ethnicity': 'Asian', 'descriptor':'Asian men without high school diplomas'}, 
+	{'gender': 'All', 't2': '10.33', 't3': '19.85', 't1': '7.58', 'education': 'Less than high school', 'ethnicity': 'All', 'descriptor':'All individuals without high school diplomas'}, 
+	{'gender': 'All', 't2': '10.54', 't3': '19.57', 't1': '7.91', 'education': 'Less than high school', 'ethnicity': 'Hispanic or Latino', 'descriptor':'Hispanics and Latinos without high school diplomas'}, 
+	{'gender': 'Men', 't2': '10.01', 't3': '18.44', 't1': '7.38', 'education': 'Less than high school', 'ethnicity': 'African American', 'descriptor':'African American men without high school diplomas'}, 
+	{'gender': 'All', 't2': '10.33', 't3': '18.31', 't1': '7.59', 'education': 'Less than high school', 'ethnicity': 'Asian', 'descriptor':'Asians without high school diplomas'}, 
+	{'gender': 'All', 't2': '9.51', 't3': '16.87', 't1': '7.38', 'education': 'Less than high school', 'ethnicity': 'African American', 'descriptor':'African Americans without high school diplomas'}, 
+	{'gender': 'Women', 't2': '10.00', 't3': '16.00', 't1': '7.49', 'education': 'Less than high school', 'ethnicity': 'Asian', 'descriptor':'Asian women without high school diplomas'}, 
+	{'gender': 'Women', 't2': '9.00', 't3': '15.40', 't1': '7.38', 'education': 'Less than high school', 'ethnicity': 'White', 'descriptor':'White women without high school diplomas'}, 
+	{'gender': 'Women', 't2': '9.16', 't3': '15.38', 't1': '7.26', 'education': 'Less than high school', 'ethnicity': 'African American', 'descriptor':'African American women without high school diplomas'}, 
+	{'gender': 'Women', 't2': '9.29', 't3': '15.29', 't1': '7.45', 'education': 'Less than high school', 'ethnicity': 'All', 'descriptor':'Women without high school diplomas'}, 
+	{'gender': 'Women', 't2': '9.61', 't3': '15.27', 't1': '7.51', 'education': 'Less than high school', 'ethnicity': 'Hispanic or Latino', 'descriptor':'Hispanic or Latino women without high school diplomas'}
+]
+var max_data=85
+var left_margin=180
+var label_size='.8em'
+var current=['AllAllAll']
+redraw(0)
 
-function cursorPoint(evt){
-	pt.x=evt.clientX;pt.y=evt.clientY
-	return pt.matrixTransform(svgel.getScreenCTM().inverse())
-}
+function redraw(delay){
+	// clear everything and set original height
+	earn_chart.selectAll('[label]').animate({y:150},1000,mina.linear)
+	$('#constraint').animate({height:150},delay,'linear',function(){
+		earn_chart.clear()
 
-loadmain2('main2.csv',function(main2){
-	g2data=main2
-	var max_year=main[0][1]
-	var min_year=1976
-	var startmonth=main[0][2]
-	var endmonth=main[0][3]
-	maxtime=max_year+(1/12)*(endmonth-1)
-	mintime=min_year+(1/12)*(endmonth-1)
+		// draw grid lines etc
+		earn_chart.line(left_margin,50,left_margin,18000).attr({stroke:'#aaa','stroke-width':1,'shape-rendering':'crispEdges'})
+		earn_chart.line(coord(10),50,coord(10),18000).attr({stroke:'#ddd','stroke-width':1,'shape-rendering':'crispEdges','stroke-dasharray':[8,8]})
+		earn_chart.line(coord(20),50,coord(20),18000).attr({stroke:'#ddd','stroke-width':1,'shape-rendering':'crispEdges'})
+		earn_chart.line(coord(30),50,coord(30),18000).attr({stroke:'#ddd','stroke-width':1,'shape-rendering':'crispEdges','stroke-dasharray':[8,8]})
+		earn_chart.line(coord(40),50,coord(40),18000).attr({stroke:'#ddd','stroke-width':1,'shape-rendering':'crispEdges'})
+		earn_chart.line(coord(50),50,coord(50),18000).attr({stroke:'#ddd','stroke-width':1,'shape-rendering':'crispEdges','stroke-dasharray':[8,8]})
+		earn_chart.line(coord(60),50,coord(60),18000).attr({stroke:'#ddd','stroke-width':1,'shape-rendering':'crispEdges'})
+		earn_chart.line(coord(70),50,coord(70),18000).attr({stroke:'#ddd','stroke-width':1,'shape-rendering':'crispEdges','stroke-dasharray':[8,8]})
+		earn_chart.line(coord(80),50,coord(80),18000).attr({stroke:'#ddd','stroke-width':1,'shape-rendering':'crispEdges'})
 
-	basekey_g2()
-	basegraph_g2(wide)
-	drawdata_g2(1,1,5,13)
-	mousetrack()
-})
+		earn_chart.text(coord(10)+3,$('#constraint').height(),'$10').attr({'font-family':'Lato','font-size':'.7em',fill:'#ccc',label:'yes'})
+		earn_chart.text(coord(30)+3,$('#constraint').height(),'$30').attr({'font-family':'Lato','font-size':'.7em',fill:'#ccc',label:'yes'})
+		earn_chart.text(coord(50)+3,$('#constraint').height(),'$50').attr({'font-family':'Lato','font-size':'.7em',fill:'#ccc',label:'yes'})
+		earn_chart.text(coord(70)+3,$('#constraint').height(),'$70').attr({'font-family':'Lato','font-size':'.7em',fill:'#ccc',label:'yes'})
 
-function loadmain2(file,callback){
-	var rawFile = new XMLHttpRequest();
-	rawFile.open("GET", file);
-	rawFile.onreadystatechange = function () {
-		if(rawFile.readyState === 4) {
-			if(rawFile.status === 200 || rawFile.status == 0) {
-				var text = rawFile.responseText;
-				text=text.split('\n')
-
-				for(var i=0;i<text.length;i++){
-					text[i]=text[i].split(',')
-				}
-
-				main=[]
-				for(var i=1;i<text.length;i++){
-					main.push([text[i][0],parseInt(text[i][1]),parseInt(text[i][2]),parseInt(text[i][3]),text[i][4],parseFloat(text[i][5]),parseFloat(text[i][6]),parseFloat(text[i][7]),parseFloat(text[i][8]),parseFloat(text[i][9]),parseFloat(text[i][10]),parseFloat(text[i][11]),parseFloat(text[i][12])])
-				}
-				callback(main)
-			}
-		}
-	}
-	rawFile.send(null);
-}
-
-function basekey_g2(){
-	var ft2=g2.rect(80,1,20,10).attr({fill:color_scale[0],'shape-rendering':'crispEdges',cursor:'pointer'})
-	var pt2=g2.rect(243.5,1,20,10).attr({fill:color_scale[1],'shape-rendering':'crispEdges',cursor:'pointer'})
-	var unemp2=g2.rect(407,1,20,10).attr({fill:color_scale[2],'shape-rendering':'crispEdges',cursor:'pointer'})
-	var disabled2=g2.rect(570.5,1,20,10).attr({fill:color_scale[3],'shape-rendering':'crispEdges',cursor:'pointer'})
-	var carer2=g2.rect(80,21,20,10).attr({fill:color_scale[4],'shape-rendering':'crispEdges',cursor:'pointer'})
-	var retired2=g2.rect(243.5,21,20,10).attr({fill:color_scale[5],'shape-rendering':'crispEdges',cursor:'pointer'})
-	var student2=g2.rect(407,21,20,10).attr({fill:color_scale[6],'shape-rendering':'crispEdges',cursor:'pointer'})
-	var other2=g2.rect(570.5,21,20,10).attr({fill:color_scale[7],'shape-rendering':'crispEdges',cursor:'pointer'})
-
-	var fttext2=g2.text(105,6,'Full-time employed').attr({'font-family':'Lato','text-anchor':'start','dominant-baseline':'central','font-size':'14px'})
-	var fttext2=g2.text(268.5,6,'Part-time employed').attr({'font-family':'Lato','text-anchor':'start','dominant-baseline':'central','font-size':'14px'})
-	var fttext2=g2.text(432,6,'Unemployed').attr({'font-family':'Lato','text-anchor':'start','dominant-baseline':'central','font-size':'14px'})
-	var fttext2=g2.text(595,6,'Retired').attr({'font-family':'Lato','text-anchor':'start','dominant-baseline':'central','font-size':'14px'})
-	var fttext2=g2.text(105,26,'Disabled').attr({'font-family':'Lato','text-anchor':'start','dominant-baseline':'central','font-size':'14px'})
-	var fttext2=g2.text(268.5,26,'Carer').attr({'font-family':'Lato','text-anchor':'start','dominant-baseline':'central','font-size':'14px'})
-	var fttext2=g2.text(432,26,'Student').attr({'font-family':'Lato','text-anchor':'start','dominant-baseline':'central','font-size':'14px'})
-	var fttext2=g2.text(595,26,'Other').attr({'font-family':'Lato','text-anchor':'start','dominant-baseline':'central','font-size':'14px'})
-}
-
-function basegraph_g2(wide){
-	// if pixels available >900ish, pass 1 to wide, else pass 0
-	if (wide==0){
-		g2width=745
-		g2height=800
-		document.getElementById('constraint').className=''
-		shape = document.getElementById("graph2");
-		shape.setAttribute("viewBox", "0,-15,745,755");
-	} else{
-		g2width=1045
-		g2height=615
-	}
-
-	g2ybounds=[55,g2height-125]
-	g2xbounds=[50,g2width-60]
-
-	// red cps change lines
-	g2.line(xvalue(1994,55),yvalue(1),xvalue(1994,55),yvalue(0)).attr({'stroke-width':1,'stroke':'red','shape-rendering':'crispEdges',type:'front'})
-	g2.line(xvalue(1989,55),yvalue(1),xvalue(1989,55),yvalue(0)).attr({'stroke-width':1,'stroke':'red','shape-rendering':'crispEdges',type:'front'})
-
-	// y-axis ticks
-	g2.text(44,yvalue(1)+6,'100%').attr({'font-family':'Lato','text-anchor':'end','font-size':'18px'})
-	g2.text(44,yvalue(.8)+6,'80%').attr({'font-family':'Lato','text-anchor':'end','font-size':'18px'})
-	g2.text(44,yvalue(.6)+6,'60%').attr({'font-family':'Lato','text-anchor':'end','font-size':'18px'})
-	g2.text(44,yvalue(.4)+6,'40%').attr({'font-family':'Lato','text-anchor':'end','font-size':'18px'})
-	g2.text(44,yvalue(.2)+6,'20%').attr({'font-family':'Lato','text-anchor':'end','font-size':'18px'})
-	g2.text(44,yvalue(0)+6,'0%').attr({'font-family':'Lato','text-anchor':'end','font-size':'18px'})
-
-	// x-axis ticks
-	g2.line(xvalue(Math.floor(maxtime)),g2ybounds[1],xvalue(Math.floor(maxtime)),g2ybounds[1]+5).attr({'stroke-width':1,'stroke':'black','shape-rendering':'crispEdges'})
-	g2.text(xvalue(Math.floor(maxtime)),g2ybounds[1]+23,Math.floor(maxtime)).attr({'font-family':'Lato','text-anchor':'middle','font-size':'18px'})
-
-	// draw axes - begin at about y=50, nothing but %s on the y-axis so you can start pretty tight
-	g2.line(50,55,50,g2height-125).attr({'stroke-width':1,'stroke':'black','shape-rendering':'crispEdges',type:'front'})
-	g2.line(50,g2height-125,g2width-60,g2height-125).attr({'stroke-width':1,'stroke':'black','shape-rendering':'crispEdges',type:'front'})
-
-	var temp=Math.floor(maxtime)
-	while(temp>mintime+5){
-		temp=temp-5
-		g2.line(xvalue(Math.floor(temp)),g2ybounds[1],xvalue(Math.floor(temp)),g2ybounds[1]+5).attr({'stroke-width':1,'stroke':'black','shape-rendering':'crispEdges'})
-		g2.text(xvalue(Math.floor(temp)),g2ybounds[1]+23,Math.floor(temp)).attr({'font-family':'Lato','text-anchor':'middle','font-size':'18px'})
-	}
-
-	var shade=g2.rect(142,g2ybounds[1]+43,47,14).attr({fill:'#ddd'})
-	var slider_label2=g2.text(g2xbounds[0],g2ybounds[1]+55,['Recessions are shaded, ','red lines',' indicate a major change to the CPS survey']).attr({'font-family':'Lato','text-anchor':'start','font-size':'14px'})
-	slider_label2.selectAll("tspan")[1].attr({fill:'red'})
-
-	// draw recession shading
-	readcsv('recessions.csv',1,function(rec){
-		interval=xvalue(1/12)-xvalue(0)
-		int=0
-		for(var i=0;i<rec.length;i++){
-			if(int==0){
-				if(rec[i][1]==1){
-					startint=rec[i][0]
-					intlength=1
-					int=1
-				}
-			} else{
-				if(rec[i][1]==1){
-					intlength=intlength+1
-				} else{
-					g2.rect(xvalue(startint),g2ybounds[0],interval*intlength,(g2ybounds[1]-g2ybounds[0])).attr({fill:'black',opacity:.1,'shape-rendering':'crispEdges','stroke-width':0,type:'front'})
-					int=0
-				}
-			}
-
-		}
-	})
-}
-
-function drawdata_g2(bracket,newg,min,max){
-	working=1
-	// bracket = 0,1,2,3,4,5
-	bracketlist=['<25','25-34','35-44','45-54','>54','25-54']
-
-	// look at all this fancy no-loop shit
-	var bracket_data=g2data.filter(function(obs){
-		return obs[0]===bracketlist[bracket]
-	})
-	tbracket_data=bracket_data.map(function(obs){
-		return [obs[0],obs[1],obs[2],obs[3],obs[4],yvalue(obs[5]),yvalue(obs[6]),yvalue(obs[7]),yvalue(obs[8]),yvalue(obs[9]),yvalue(obs[10]),yvalue(obs[11]),yvalue(obs[12])]
-	})
-
-	// n observations in tbracket_data where n=years in dataset, each with 8 category variables numbered 5-12
-	var path_list=[]
-	var years=tbracket_data.length
-	var stringstart=''+g2ybounds[1]+','
-	var base=new Array(years+1).join(stringstart).split(',').map(parseFloat)
-	var xinterval=(g2xbounds[1]-g2xbounds[0])/(tbracket_data.length-1)
-
-	for(var i=5;i<13;i++){
-		if(i<min){
-			// give these areas flat lines
-			path='M'+g2xbounds[0]+','+g2ybounds[1]
-
-			// travel along the base path
-			for(var j=1;j<tbracket_data.length;j++){
-				path=path+'L'+(g2xbounds[0]+(xinterval*j))+','+g2ybounds[1]
-			}
-
-			// now the new 'top' path
-			for(var j=0;j<tbracket_data.length;j++){
-				path=path+'L'+(g2xbounds[0]+xinterval*(tbracket_data.length-j-1))+','+(g2ybounds[1]-.1)
-			}
-
-			// finally drop back down to the old base
-			path=path+'L'+g2xbounds[0]+','+g2ybounds[1]
-			path_list.push(path)
-		} else if(i>max){
-			// these areas are also flat but go above the selected area
-			path='M'+g2xbounds[0]+','+g2ybounds[0]
-			var base0=base[0]
-
-			// travel along the base path
-			for(var j=1;j<tbracket_data.length;j++){
-				path=path+'L'+(g2xbounds[0]+(xinterval*j))+','+g2ybounds[0]
-			}
-
-			// now the new 'top' path
-			for(var j=0;j<tbracket_data.length;j++){
-				path=path+'L'+(g2xbounds[0]+xinterval*(tbracket_data.length-j-1))+','+(g2ybounds[0]+.1)
-				// base[tbracket_data.length-1-(1*j)]=(base[tbracket_data.length-1-(1*j)]-(g2ybounds[1]-tbracket_data[j][i]))
-			}
-
-			// finally drop back down to the old base
-			path=path+'L'+g2xbounds[0]+','+g2ybounds[0]
-			path_list.push(path)
-		} else {
-			path='M'+g2xbounds[0]+','+base[0]
-			var base0=base[0]
-
-			// travel along the base path
-			for(var j=1;j<tbracket_data.length;j++){
-				path=path+'L'+(g2xbounds[0]+(xinterval*j))+','+base[j]
-			}
-
-			// now the new 'top' path
-			for(var j=0;j<tbracket_data.length;j++){
-				path=path+'L'+(g2xbounds[0]+xinterval*(tbracket_data.length-j-1))+','+(base[tbracket_data.length-1-(1*j)]-(g2ybounds[1]-tbracket_data[j][i]))
-				base[tbracket_data.length-1-(1*j)]=(base[tbracket_data.length-1-(1*j)]-(g2ybounds[1]-tbracket_data[j][i]))
-			}
-
-			// finally drop back down to the old base
-			path=path+'L'+g2xbounds[0]+','+base0
-			path_list.push(path)
-		}
-	}
-
-	for(var i=0;i<path_list.length;i++){
-		if(newg==1){
-			var areag2=g2.path(path_list[i]).attr({fill:color_scale[i],type:'grouppath',column:i+5,cursor:'pointer'})
-			var areafake=g2.path(path_list[i]).attr({fill:color_scale[i],type:'front2',column:i+5,opacity:0,cursor:'pointer'})
-			areafake.hover(highlight_area,unhighlight_area)
-			areafake.click(g2clickredraw)
-			working=0
-		} else{
-			if(i==path_list.length-1){
-				g2.select("path[type='grouppath'][column='"+(i+5)+"']").animate({path:path_list[i]},1000,function(){
-					working=0
-					update_per()
-				})
-			} else{
-				g2.select("path[type='grouppath'][column='"+(i+5)+"']").animate({path:path_list[i]},1000)
-			}
-			g2.select("path[type='front2'][column='"+(i+5)+"']").attr({path:path_list[i]})
-		}
-	}
-
-	g2.append(g2.selectAll("[type='front']"))
-	g2.append(g2.selectAll("[type='front2']"))
-
-	// uncomment the grid below for diagnostics
-	// for(var j=0;j<tbracket_data.length;j++){
-	// 	g2.line(g2xbounds[0]+xinterval*j,50,g2xbounds[0]+xinterval*j,500).attr({'stroke-width':1,stroke:'black','stroke-opacity':.1})
-	// }
-
-	// g2.line(g2xbounds[0],yvalue(.1),g2xbounds[1],yvalue(.1)).attr({'stroke-width':1,stroke:'black','stroke-opacity':.1})
-	// g2.line(g2xbounds[0],yvalue(.2),g2xbounds[1],yvalue(.2)).attr({'stroke-width':1,stroke:'black','stroke-opacity':.1})
-	// g2.line(g2xbounds[0],yvalue(.3),g2xbounds[1],yvalue(.3)).attr({'stroke-width':1,stroke:'black','stroke-opacity':.1})
-	// g2.line(g2xbounds[0],yvalue(.4),g2xbounds[1],yvalue(.4)).attr({'stroke-width':1,stroke:'black','stroke-opacity':.1})
-	// g2.line(g2xbounds[0],yvalue(.5),g2xbounds[1],yvalue(.5)).attr({'stroke-width':1,stroke:'black','stroke-opacity':.1})
-	// g2.line(g2xbounds[0],yvalue(.6),g2xbounds[1],yvalue(.6)).attr({'stroke-width':1,stroke:'black','stroke-opacity':.1})
-	// g2.line(g2xbounds[0],yvalue(.7),g2xbounds[1],yvalue(.7)).attr({'stroke-width':1,stroke:'black','stroke-opacity':.1})
-	// g2.line(g2xbounds[0],yvalue(.8),g2xbounds[1],yvalue(.8)).attr({'stroke-width':1,stroke:'black','stroke-opacity':.1})
-	// g2.line(g2xbounds[0],yvalue(.9),g2xbounds[1],yvalue(.9)).attr({'stroke-width':1,stroke:'black','stroke-opacity':.1})
-	// g2.line(g2xbounds[0],yvalue(1),g2xbounds[1],yvalue(1)).attr({'stroke-width':1,stroke:'black','stroke-opacity':.1})
-}
-
-function g2clickredraw(ev){
-	if(working==0){
-		// unhighlight_area(ev)
-		a=document.getElementById('g2select').value
-		if(gclicked==0){
-			item=Snap(ev.target)
-			column=item.attr('column')
-			gclicked=1
-			drawdata_g2(parseInt(a),0,parseInt(column),parseInt(column))
-			min=parseInt(column)
-			max=parseInt(column)
-		} else if(gclicked==1){
-			gclicked=0
-			min=5
-			max=13
-			drawdata_g2(parseInt(a),0,5,13)
-		}
-	}
-}
-
-function yvalue(y){
-	return g2ybounds[0]+g2ybounds[1]-(g2ybounds[0]+(g2ybounds[1]-g2ybounds[0])*(y))
-}
-
-function xvalue(x){
-	return g2xbounds[0]+(g2xbounds[1]-g2xbounds[0])*((x-mintime)/(maxtime-mintime))
-}
-
-function reversey(coord){
-	return Math.round(100*(g2ybounds[1]-coord)/(g2ybounds[1]-g2ybounds[0]))
-}
-
-function reversex(coord){
-	return Math.floor(mintime+(maxtime-mintime)*((coord-g2xbounds[0])/(g2xbounds[1]-g2xbounds[0])))
-}
-
-function g2redraw(){
-	a=document.getElementById('g2select').value
-	drawdata_g2(parseInt(a),0,min,max)
-}
-
-function readcsv(file,dateflag,callback) {
-	var rawFile = new XMLHttpRequest();
-	rawFile.open("GET", file);
-	rawFile.onreadystatechange = function () {
-		if(rawFile.readyState === 4) {
-			if(rawFile.status === 200 || rawFile.status == 0) {
-				var text = rawFile.responseText;
-				text=text.split('\n')
-				for(var i=0;i<text.length;i++){
-					text[i]=text[i].split(',')
-				}
-				var final=[]
-
-				// return years only
-				if(dateflag==0){
-					for(var i=1;i<text.length;i++){
-						a=[parseInt(text[i][0].split('-')[0]),parseFloat(text[i][1])]
-						if(!isNaN(a[0]) & !isNaN(a[1])){
-							final.push(a)
-						}
-					}
-				}
-
-				// convert months to fractions and return years+(months-1)/12
-				if(dateflag==1){
-					for(var i=1;i<text.length;i++){
-						a=[parseFloat(text[i][0].split('-')[0])+(parseFloat(text[i][0].split('-')[1])-1)/12,parseFloat(text[i][1])]
-						if(!isNaN(a[0]) & !isNaN(a[1])){
-							final.push(a)
-						}
-					}
-				}
-				callback(final)
-			}
-		}
-	}
-	rawFile.send(null);
-}
-
-function highlight_area(ev){
-	temp=Snap(ev.target)
-	item=g2.select("[type='grouppath'][column='"+temp.attr('column')+"']")
-
-	g2.append(item)
-	g2.append(g2.selectAll("[type='front']"))
-	g2.append(g2.selectAll("[type='front2']"))
-
-	item.attr({'fill-opacity':.7})
-	item.attr({'stroke':item.attr('fill'),'stroke-width':1})
-}
-
-function unhighlight_area(ev){
-	temp=Snap(ev.target)
-	item=g2.select("[type='grouppath'][column='"+temp.attr('column')+"']")
-	item.attr({'fill-opacity':1})
-	item.attr({'stroke-width':0})
-}
-
-//year tracker
-function mousetrack(){
-	var mouselinex=g2.line(xvalue(2009),g2ybounds[0],xvalue(2009),g2ybounds[1]-.5).attr({stroke:'#000','stroke-width':1,type:'front','shape-rendering':'crispEdges','stroke-dasharray':[8,8]})
-	var mouseliney=g2.line(g2xbounds[0],yvalue(.6),g2xbounds[1],yvalue(.6)).attr({stroke:'#000','stroke-width':1,type:'front','shape-rendering':'crispEdges','stroke-dasharray':[8,8]})
-	// var mouse_year=g2.text(xvalue(2009)+4,g2ybounds[0]-2,'2009').attr({'font-family':'Lato','text-anchor':'middle','font-size':'18px',type:'front'})
-	// var mouse_percent=g2.text(g2xbounds[1]+3,yvalue(.6)+5,'60%').attr({'font-family':'Lato','text-anchor':'start','font-size':'18px',type:'front'})
-	var mousebox=g2.rect(Math.round(xvalue(2009)+10),Math.round(yvalue(.6)-60),50,50).attr({fill:'white','stroke-width':1,'stroke':'black','shape-rendering':'crispEdges',type:'front2'})
-	mbox1=g2.text(xvalue(2009)+35,yvalue(.6)-39,'2009').attr({'font-family':'Lato','text-anchor':'middle','font-size':'18px',type:'front2'})
-	var year=2009
-	var mouse_data=tbracket_data.filter(function(obs){
-		return obs[1]===year
-	})
-	var per=(reversey(mouse_data[0][5])).toFixed(0)+'%'
-	mbox2=g2.text(xvalue(2009)+35,yvalue(.6)-18,per).attr({'font-family':'Lato','text-anchor':'middle','font-size':'18px',type:'front2',fill:color_scale[0],'font-weight':'bold'})
-	g2.append(g2.selectAll("[type='front']"))
-	g2.append(g2.selectAll("[type='front2']"))
-
-	test=function OnMouseMove(loc,evt,callback) {
-		if(working==0){
-			var tempxloc=Math.round(loc['x'])
-			var tempyloc=Math.round(loc['y'])
-
-			if(tempxloc>=g2xbounds[0] & tempxloc<=g2xbounds[1] & tempyloc>=g2ybounds[0] & tempyloc<=g2ybounds[1]){
-				xloc=Math.round(loc['x'])
-				yloc=Math.round(loc['y'])
-				var item=Snap(evt.target)
-				mouselinex.attr({x1:xloc,x2:xloc})
-				mouseliney.attr({y1:yloc,y2:yloc})
-				mousebox.attr({x:xloc+10,y:yloc-60})
-				var year=reversex(xloc)
-
-				var mouse_data=tbracket_data.filter(function(obs){
-					return obs[1]===year
-				})
-				per=(reversey(mouse_data[0][item.attr('column')])).toFixed(0)+'%'
-
-				if(per=='NaN%'){per='-'}
-
-				mbox1.attr({text:year,x:xloc+35,y:yloc-39})
-				mbox2.attr({text:per,y:yloc-18,x:xloc+35,fill:item.attr('fill')})
-				callback()
-			}
-		}
-	}
-
-	svgel.addEventListener('mousemove',function(evt){
-		var loc=cursorPoint(evt)
-		test(loc,evt,function(){
-			g2.append(g2.selectAll("[type='front2']"))
+		// draw starting graph (all)
+		var current=earn_chart_data.filter(function(row){
+			return row.gender==='All' & row.education==='All' & row.ethnicity==='All'
 		})
+		var y=$('#constraint').height()-50
+		var start_x=coord(current[0].t1)
+		var end_x=coord(current[0].t3)
+		var mid_x=coord(current[0].t2)
+		earn_chart.line(start_x,y,end_x,y).attr({stroke:'#67c2a5','stroke-width':2})
+		earn_chart.line(start_x,y-5,start_x,y+5).attr({stroke:'black','stroke-width':2})
+		earn_chart.text(start_x,y-10,'$'+current[0].t1).attr({'font-family':'Lato','text-anchor':'middle','font-size':label_size})
+		var tenth2=earn_chart.text(start_x,y+22,['10th','percentile']).attr({fill:'#888','font-family':'Lato','text-anchor':'middle','font-size':'.6em'})
+		tenth2.selectAll("tspan:not(:first-child)").attr({x:tenth2.attr('x'),dy:10})
+		earn_chart.line(end_x,y-5,end_x,y+5).attr({stroke:'black','stroke-width':2})
+		earn_chart.text(end_x,y-10,'$'+current[0].t3).attr({'font-family':'Lato','text-anchor':'middle','font-size':label_size})
+		var last2=earn_chart.text(end_x,y+22,['90th','percentile']).attr({fill:'#888','font-family':'Lato','text-anchor':'middle','font-size':'.6em'})
+		last2.selectAll("tspan:not(:first-child)").attr({x:last2.attr('x'),dy:10})
+		earn_chart.line(mid_x,y-5,mid_x,y+5).attr({stroke:'black','stroke-width':2})
+		earn_chart.text(mid_x,y+22,'$'+current[0].t2).attr({'font-family':'Lato','text-anchor':'middle','font-size':label_size})
+		var median=earn_chart.text(mid_x,y-10,'median').attr({fill:'#888','font-family':'Lato','text-anchor':'middle','font-size':'.6em'})
+
+
+		// add text label
+		var lines=multitext(current[0].descriptor,{'font-family':'Lato'},left_margin-5,earn_chart)
+		var label=earn_chart.text(left_margin-5,y+5,lines).attr({'font-family':'Lato','text-anchor':'end'})
 	})
 }
 
-function update_per(){
-	var item=Snap.getElementByPoint(xloc,yloc)
-	var year=reversex(xloc)
+function addnew(){
+	var gender=$('#gender_select option:selected').text()
+	var education=$('#ed_select option:selected').text()
+	var ethnicity=$('#eth_select option:selected').text()
+	var string=gender+education+ethnicity
+	if (current.indexOf(string)===-1){
+		var cur_height=$('#constraint').height()
+		earn_chart.selectAll('[label]').animate({y:cur_height+100},800,mina.linear)
+		$('#constraint').animate({height:cur_height+100},800,'linear',function(){
+			// draw starting graph (all)
+			var current=earn_chart_data.filter(function(row){
+				return row.gender===gender & row.education===education & row.ethnicity===ethnicity
+			})
+			var y=$('#constraint').height()-50
+			var start_x=coord(current[0].t1)
+			var end_x=coord(current[0].t3)
+			var mid_x=coord(current[0].t2)
+			var base_line=earn_chart.line(mid_x,y,mid_x,y).attr({stroke:'#67c2a5','stroke-width':2})
+			base_line.animate({x1:start_x,x2:end_x},(end_x-start_x)*3,function(){
+				var t1=earn_chart.line(start_x,y,start_x,y).attr({stroke:'black','stroke-width':2})
+				t1.animate({y1:y-5,y2:y+5},500)
+				var l1=earn_chart.text(start_x,y-10,'$'+current[0].t1).attr({'font-family':'Lato','text-anchor':'middle','font-size':label_size,opacity:0})
+				l1.animate({opacity:1},500)
+				var t2=earn_chart.line(end_x,y,end_x,y).attr({stroke:'black','stroke-width':2})
+				t2.animate({y1:y-5,y2:y+5},500)
+				var l2=earn_chart.text(end_x,y-10,'$'+current[0].t3).attr({'font-family':'Lato','text-anchor':'middle','font-size':label_size,opacity:0})
+				l2.animate({opacity:1},500)
+				var t3=earn_chart.line(mid_x,y,mid_x,y).attr({stroke:'black','stroke-width':2})
+				t3.animate({y1:y-5,y2:y+5},500)
+				var l3=earn_chart.text(mid_x,y+22,'$'+current[0].t2).attr({'font-family':'Lato','text-anchor':'middle','font-size':label_size,opacity:0})
+				l3.animate({opacity:1},500)
+			})
 
-	var mouse_data=tbracket_data.filter(function(obs){
-		return obs[1]===year
-	})
-	per=(reversey(mouse_data[0][item.attr('column')])).toFixed(0)+'%'
+			// add text label
+			var lines=multitext(current[0].descriptor,{'font-family':'Lato'},left_margin-5,earn_chart)
+			var label=earn_chart.text(left_margin-5,y+5-lines.length/2*7.5,lines).attr({'font-family':'Lato','text-anchor':'end',opacity:0})
+			label.selectAll("tspan:not(:first-child)").attr({x:label.attr('x'),dy:15})
+			label.animate({opacity:1},1000)
+		})
+	}
+}
 
-	if(per=='NaN%'){per='-'}
+function coord(value){
+	var value=parseFloat(value)
+	return left_margin+(745-left_margin)*(value/max_data)
+}
 
-	mbox1.attr({text:year})
-	mbox2.attr({text:per,fill:item.attr('fill')})
+// Modified version of this very nice text wrapping function from stackoverflow @Thomas: 
+// http://stackoverflow.com/questions/27517482/how-to-auto-text-wrap-text-in-snap-svg
+function multitext(txt,attributes,max_width,svgname){
+	var words = txt.split(" ");
+	var width_so_far = 0, current_line=0, lines=[''];
+	for (var i = 0; i < words.length; i++) {
+		var temp = svgname.text(0, 0, words[i]+' ').attr(attributes);
+		temp.node.setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:space", "preserve")
+		var width=temp.getBBox().width
+		temp.remove()
+		if (width_so_far + (width) > max_width) {
+			lines.push('');
+			current_line++;
+			width_so_far = 0;
+		}
+		width_so_far += width;
+		lines[current_line] += words[i] + " ";
+	}
+	for (var i=0;i<lines.length;i++){
+		if(lines[i][lines[i].length-1]==' '){
+			lines[i]=lines[i].substring(0,lines[i].length-1)
+		}
+	}
+	return lines
 }
 
 </script>

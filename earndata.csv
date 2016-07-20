@@ -1,0 +1,91 @@
+Gender,Race/Ethnicity,Education,10th Percentile Wage,50th Percentile Wage,90th Percentile Wage
+Men,All,Advanced,$16.85,$36.97,$81.12
+Men,White,Advanced,$17.31,$37.50,$81.12
+Men,Asian,Advanced,$17.78,$39.95,$81.12
+Men,Latino,Advanced,$14.25,$33.22,$73.75
+All,Asian,Advanced,$15.81,$36.08,$72.29
+All,White,Advanced,$15.65,$32.27,$69.25
+All,All,Advanced,$15.37,$32.01,$68.67
+Men,African American,Advanced,$14.30,$30.41,$67.31
+Men,White,College,$13.65,$29.36,$64.54
+Women,Asian,Advanced,$14.42,$30.55,$63.62
+All,Latino,Advanced,$13.75,$29.34,$62.50
+Men,All,College,$12.91,$28.50,$61.15
+Men,Asian,College,$12.21,$29.76,$60.80
+Men,Asian,All,$9.77,$23.88,$57.94
+Women,White,Advanced,$14.89,$28.85,$57.76
+Women,All,Advanced,$14.57,$28.64,$57.74
+All,African American,Advanced,$13.71,$27.80,$57.23
+All,Asian,College,$11.60,$26.36,$55.28
+All,White,College,$12.21,$25.45,$54.96
+All,All,College,$12.00,$25.00,$52.95
+Women,African American,Advanced,$13.47,$26.17,$52.88
+All,Asian,All,$9.22,$20.65,$51.98
+Women,Latino,Advanced,$13.23,$26.29,$51.78
+Men,Latino,College,$11.50,$24.78,$51.63
+Men,White,All,$10.00,$21.79,$50.54
+Women,Asian,College,$11.02,$24.04,$48.53
+Men,All,All,$9.22,$19.61,$47.44
+Men,African American,College,$11.43,$23.31,$47.44
+All,Latino,College,$10.51,$22.03,$47.34
+Women,White,College,$11.36,$22.60,$46.31
+Women,Asian,All,$8.96,$18.40,$45.80
+Women,All,College,$11.07,$22.33,$45.80
+All,White,All,$9.16,$19.57,$45.44
+All,African American,College,$11.01,$22.06,$44.80
+Women,African American,College,$10.69,$21.08,$43.27
+All,All,All,$8.91,$17.81,$42.59
+Women,Latino,College,$10.03,$20.02,$40.54
+Men,White,Some college,$9.36,$19.41,$39.60
+Women,White,All,$8.78,$17.37,$39.15
+Men,All,Some college,$9.16,$18.07,$37.82
+Women,All,All,$8.50,$16.02,$37.54
+Men,Asian,Some college,$9.00,$16.87,$36.09
+Men,African American,All,$8.43,$15.49,$35.73
+All,White,Some college,$8.96,$16.91,$35.63
+Men,White,High school,$9.31,$18.00,$34.79
+All,African American,All,$8.26,$14.90,$34.20
+All,All,Some college,$8.75,$15.89,$34.00
+Men,Latino,Some college,$8.96,$15.81,$33.94
+Men,Latino,All,$8.51,$14.50,$33.26
+All,Asian,Some college,$8.65,$15.27,$33.21
+Men,All,High school,$9.00,$16.24,$32.54
+Women,African American,All,$8.15,$14.25,$32.50
+All,White,High school,$8.76,$15.73,$31.34
+All,Latino,All,$8.26,$13.71,$31.29
+Men,African American,Some college,$8.51,$15.18,$30.89
+Women,White,Some college,$8.51,$15.02,$30.88
+All,Latino,Some college,$8.51,$14.50,$30.54
+Men,Asian,High school,$8.70,$14.76,$29.89
+Women,Asian,Some college,$8.43,$14.31,$29.86
+Women,All,Some college,$8.43,$14.46,$29.79
+All,All,High school,$8.45,$14.68,$29.53
+Women,Latino,All,$8.14,$12.65,$28.83
+All,African American,Some college,$8.34,$14.02,$28.57
+Men,Latino,High school,$8.61,$14.23,$28.50
+All,Asian,High school,$8.28,$13.42,$27.48
+Men,African American,High school,$8.26,$13.89,$26.85
+Women,Latino,Some college,$8.30,$13.33,$26.42
+Women,African American,Some college,$8.25,$13.23,$26.36
+All,Latino,High school,$8.26,$13.00,$26.03
+Women,White,High school,$8.26,$13.52,$25.67
+All,African American,High school,$8.01,$12.65,$25.00
+Women,All,High school,$8.14,$12.72,$24.55
+Women,Asian,High school,$8.14,$12.50,$24.02
+Men,White,Less than high school,$7.55,$11.04,$23.23
+Women,Latino,High school,$8.02,$11.75,$22.03
+Women,African American,High school,$7.91,$11.76,$21.69
+Men,All,Less than high school,$7.74,$11.31,$21.38
+Men,Latino,Less than high school,$8.14,$11.70,$20.82
+All,White,Less than high school,$7.49,$10.01,$20.65
+Men,Asian,Less than high school,$7.74,$11.06,$20.24
+All,All,Less than high school,$7.58,$10.33,$19.85
+All,Latino,Less than high school,$7.91,$10.54,$19.57
+Men,African American,Less than high school,$7.38,$10.01,$18.44
+All,Asian,Less than high school,$7.59,$10.33,$18.31
+All,African American,Less than high school,$7.38,$9.51,$16.87
+Women,Asian,Less than high school,$7.49,$10.00,$16.00
+Women,White,Less than high school,$7.38,$9.00,$15.40
+Women,African American,Less than high school,$7.26,$9.16,$15.38
+Women,All,Less than high school,$7.45,$9.29,$15.29
+Women,Latino,Less than high school,$7.51,$9.61,$15.27
