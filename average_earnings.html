@@ -247,7 +247,9 @@ function redraw(delay){
 	current=['AllAllAll']
 	earn_chart.selectAll('[label]').animate({y:150},1000,mina.linear)
 	$('#constraint').animate({height:150},delay,'linear',function(){
-		earn_chart.clear()
+		earn_chart.selectAll('rect').remove()
+		earn_chart.selectAll('text').remove()
+		earn_chart.selectAll('line').remove()
 
 		// draw grid lines etc
 		earn_chart.rect(0,0,745,18000).attr({fill:'white'})
