@@ -1,0 +1,47 @@
+import re
+import csv
+
+with open('/Users/austinclemens/Desktop/execution.csv','rU') as cfile:
+	reader=csv.reader(cfile)
+	data=[row for row in reader]
+
+bblah=re.compile('([0123456789]{1,4}) Black')
+wblah=re.compile('([0123456789]{1,4}) White')
+ablah=re.compile('([0123456789]{1,4}) Asian')
+lblah=re.compile('([0123456789]{1,4}) Latino')
+nblah=re.compile('([0123456789]{1,4}) Native American')
+oblah=re.compile('([0123456789]{1,4}) Other')
+
+data[0].append('black')
+data[0].append('white')
+data[0].append('asian')
+data[0].append('latino')
+data[0].append('nativeamerican')
+data[0].append('other')
+
+for row in data[1:]:
+	b=bblah.findall(row[2])
+	w=wblah.findall(row[2])
+	a=ablah.findall(row[2])
+	l=lblah.findall(row[2])
+	n=nblah.findall(row[2])
+	o=oblah.findall(row[2])
+
+	b=[int(entry) for entry in b]
+	w=[int(entry) for entry in w]
+	a=[int(entry) for entry in a]
+	l=[int(entry) for entry in l]
+	n=[int(entry) for entry in n]
+	o=[int(entry) for entry in o]
+
+	row.append(sum(b))
+	row.append(sum(w))
+	row.append(sum(a))
+	row.append(sum(l))
+	row.append(sum(n))
+	row.append(sum(o))
+
+with open('/Users/austinclemens/Desktop/execution2.csv','w') as cfile:
+	writer=csv.writer(cfile)
+	for row in data:
+		writer.writerow(row)
