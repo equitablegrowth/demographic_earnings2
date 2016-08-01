@@ -19,50 +19,53 @@
 
   function inlineImages(el, callback) {
     requireDomNode(el);
+    callback()
 
-    var images = el.querySelectorAll('image'),
-        left = images.length,
-        checkDone = function() {
-          if (left === 0) {
-            callback();
-          }
-        };
+    // var images = el.querySelectorAll('image'),
+    //     left = images.length,
+    //     checkDone = function() {
+    //       if (left === 0) {
+    //         callback();
+    //       }
+    //     };
 
-    checkDone();
-    for (var i = 0; i < images.length; i++) {
-      (function(image) {
-        var href = image.getAttributeNS("http://www.w3.org/1999/xlink", "href");
-        if (href) {
-          if (isExternal(href.value)) {
-            console.warn("Cannot render embedded images linking to external hosts: "+href.value);
-            return;
-          }
-        }
-        var canvas = document.createElement('canvas');
-        var ctx = canvas.getContext('2d');
-        var img = new Image();
-        href = href || image.getAttribute('href');
-        if (href) {
-          img.src = href;
-          img.onload = function() {
-            canvas.width = img.width;
-            canvas.height = img.height;
-            ctx.drawImage(img, 0, 0);
-            image.setAttributeNS("http://www.w3.org/1999/xlink", "href", canvas.toDataURL('image/png'));
-            left--;
-            checkDone();
-          }
-          img.onerror = function() {
-            console.log("Could not load "+href);
-            left--;
-            checkDone();
-          }
-        } else {
-          left--;
-          checkDone();
-        }
-      })(images[i]);
-    }
+    // checkDone();
+    // for (var i = 0; i < images.length; i++) {
+    //   (function(image) {
+    //     var href = image.getAttributeNS("http://www.w3.org/1999/xlink", "href");
+    //     if (href) {
+    //       if (isExternal(href.value)) {
+    //         console.warn("Cannot render embedded images linking to external hosts: "+href.value);
+    //         return;
+    //       }
+    //     }
+    //     var canvas = document.createElement('canvas');
+    //     var ctx = canvas.getContext('2d');
+    //     var img = new Image();
+    //     href = href || image.getAttribute('href');
+    //     console.log('inhere',img)
+
+    //     if (href) {
+    //       img.src = href;
+    //       img.onload = function() {
+    //         canvas.width = img.width;
+    //         canvas.height = img.height;
+    //         ctx.drawImage(img, 0, 0);
+    //         image.setAttributeNS("http://www.w3.org/1999/xlink", "href", canvas.toDataURL('image/png'));
+    //         left--;
+    //         checkDone();
+    //       }
+    //       img.onerror = function() {
+    //         console.log("Could not load "+href);
+    //         left--;
+    //         checkDone();
+    //       }
+    //     } else {
+    //       left--;
+    //       checkDone();
+    //     }
+    //   })(images[i]);
+    // }
   }
 
   function styles(el, selectorRemap) {
@@ -211,6 +214,7 @@
     out$.svgAsDataUri(el, options, function(uri) {
       var image = new Image();
       image.onload = function() {
+        console.log('inhere2',image)
         var canvas = document.createElement('canvas');
         canvas.width = image.width;
         canvas.height = image.height;
@@ -244,7 +248,7 @@
     });
   }
 
-  function download(name, uri) {
+  function idownload(name, uri) {
     var a = document.createElement('a');
     a.download = name;
     a.href = uri;
@@ -260,7 +264,7 @@
 
     options = options || {};
     out$.svgAsDataUri(el, options, function(uri) {
-      download(name, uri);
+      idownload(name, uri);
     });
   }
 
@@ -269,7 +273,7 @@
 
     options = options || {};
     out$.svgAsPngUri(el, options, function(uri) {
-      download(name, uri);
+      idownload(name, uri);
     });
   }
 

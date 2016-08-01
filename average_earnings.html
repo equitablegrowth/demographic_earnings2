@@ -76,11 +76,6 @@
 </head>
 
 <body>
-<!-- <div>
-	<button class="button" onclick="download()"><span class="mdi mdi-download"></span> DOWNLOAD IMAGE</button>
-	<button class="button2" onclick="redraw(1000)"><span class="mdi mdi-autorenew"></span> START OVER</button>
-</div> -->
-
 <p>Kombucha freegan cornhole taxidermy, slow-carb crucifix keytar lumbersexual. Art party leggings YOLO selfies. Hella lumbersexual gluten-free brunch plaid seitan ennui, pickled locavore banh mi thundercats disrupt tacos jean shorts. Whatever quinoa hammock butcher. Actually put a bird on it umami beard flannel. PBR&B deep v single-origin coffee portland ramps, franzen bitters meggings craft beer gluten-free. Irony locavore wayfarers gluten-free bicycle rights, cred retro gochujang pork belly</p>
 	
 	<div class='hed'>Placeholder the headline for this interactive goes here</div>
@@ -123,7 +118,7 @@
 		</div>
 		<button class="button" onclick="addnew()">ADD</button>
 		<div>
-			<button class="button" onclick="download()"><span class="mdi mdi-download"></span> DOWNLOAD IMAGE</button>
+			<button class="button" onclick="download_image()"><span class="mdi mdi-download"></span> DOWNLOAD IMAGE</button>
 			<button class="button2" onclick="redraw(1000)"><span class="mdi mdi-autorenew"></span> START OVER</button>
 		</div>
 	</div>
@@ -143,7 +138,7 @@
 				</style>
 			</defs>
 		</svg>
-		<div class='note'>Note: Data is from the Census Bureau's Current Population Survey.</div>
+		<!-- <div class='note'>Note: Data is from the Census Bureau's Current Population Survey.</div> -->
 	</div>
 
 <p>Tote bag direct trade listicle, pug squid readymade cronut vegan mlkshk. Retro quinoa fingerstache viral, cardigan banh mi brooklyn intelligentsia cornhole microdosing direct trade irony gochujang truffaut. Direct trade kombucha pug tumblr. Cardigan microdosing brunch street art flexitarian normcore. Freegan slow-carb ethical, raw denim vegan paleo bushwick tumblr tofu hammock helvetica vinyl waistcoat. Try-hard pitchfork VHS before they sold out. Semiotics before they sold out portland, whatever pickled migas small batch chartreuse thundercats.</p>
@@ -385,7 +380,7 @@ function interact(ev){
 		highlight.click(function(){
 			var rect=Snap(ev.target)
 			var ident=rect.attr('ident2')
-			if(earn_chart.select("line[ident='"+ident+"'][base]").attr('stroke')=='rgb(245, 140, 99)'){
+			if(earn_chart.select("line[ident='"+ident+"'][base]").attr('stroke')=='rgb(245, 140, 99)' || earn_chart.select("line[ident='"+ident+"'][base]").attr('stroke')=='#f58c63'){
 				earn_chart.select("line[ident='"+ident+"'][base]").attr({stroke:'#67c2a5'})	
 			} else {
 				earn_chart.select("line[ident='"+ident+"'][base]").attr({stroke:'#f58c63'})	
@@ -431,7 +426,6 @@ function remove_line(ev){
 		current.splice(a,1)
 		var cur_height=$('#constraint').height()
 		earn_chart.selectAll('[label]').animate({y:cur_height-2-100},400,mina.linear)
-		console.log(after_box)
 		for(var i=0;i<after_box.length;i++){
 			var elements=earn_chart.selectAll("[ident='"+after_box[i]+"']")
 			for(var j=0;j<elements.length;j++){
@@ -458,34 +452,34 @@ function coord(value){
 	return left_margin+(745-left_margin)*(value/max_data)
 }
 
-function download(){
+function download_image(){
 	var height=$('#constraint').height()
 	var scale=window.devicePixelRatio
 	$('#constraint').height(height+43)
 	earn_chart.selectAll("[long]").attr({y2:height})
 
 	prep_download(function(){
-		// saveSvgAsPng(document.getElementById("avg_earn"), "earnings.png", {height:height,top:50,scale:scale}, function(){
-		// 	console.log('finished')
-		// });
-		console.log('yay')
+		// $('#constraint').height(height)
+		// earn_chart.selectAll("[long]").attr({y2:18000})
+		// earn_chart.selectAll("image").remove()
+		// earn_chart.selectAll("[source]").remove()
+		saveSvgAsPng(document.getElementById("avg_earn"), "earnings.png", {height:height,top:50,scale:scale});
 	})
 }
 
-function prep_download(callback){
+function prep_download(cb){
 	var height=$('#constraint').height()
 	var width=$('#constraint').width()
-	var placedlogo=earn_chart.image(logo,0,0)
-	placedlogo.node.addEventListener('load',function(){
-		console.log(placedlogo.attr('width'),placedlogo.attr('height'))
-		placedlogo.attr({width:placedlogo.attr('width')/2,height:placedlogo.attr('height')/2,x:width-136,y:height-33})
-		var source=earn_chart.text(0,height-16,["Authors' analysis using pooled data from 2011-2014 of: Center for Economic and Policy Research.","2016. CPS ORG Uniform Extracts, Version 2.1. Washington, DC."]).attr({'font-family':'Lato','font-size':'.7em','fill':'#aaa','font-weight':400})
+	var placedlogo=earn_chart.image(logo,0,0).attr({id:'placedlogo'})
+	$('#placedlogo')[0].addEventListener('load',function(){
+		placedlogo.attr({width:placedlogo.attr('width')/2,height:placedlogo.attr('height')/2,x:width-136,y:height-33,id:'placedlogo'})
+		var source=earn_chart.text(0,height-16,["Authors' analysis using pooled data from 2011-2014 of: Center for Economic and Policy Research.","2016. CPS ORG Uniform Extracts, Version 2.1. Washington, DC."]).attr({'font-family':'Lato','font-size':'.7em','fill':'#ccc','font-weight':400,source:1})
 		source.selectAll("tspan:not(:first-child)").attr({x:source.attr('x'),dy:14})
-		callback()
+		cb()
 	})
 }
 
-// Modified version of this very nice text wrapping function from stackoverflow @Thomas: 
+// Modified version of this very nice text wrapping function from stackoverflow @Thomas:
 // http://stackoverflow.com/questions/27517482/how-to-auto-text-wrap-text-in-snap-svg
 function multitext(txt,attributes,max_width,svgname){
 	var words = txt.split(" ");
