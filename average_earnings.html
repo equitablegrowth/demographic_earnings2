@@ -247,7 +247,7 @@ var topf=0
 var bottom=0
 var animating=0
 var current=['AllAllAll']
-earn_chart.clear()
+// earn_chart.clear()
 redraw(0)
 
 function redraw(delay){
@@ -459,11 +459,12 @@ function download_image(){
 	earn_chart.selectAll("[long]").attr({y2:height})
 
 	prep_download(function(){
-		// $('#constraint').height(height)
-		// earn_chart.selectAll("[long]").attr({y2:18000})
-		// earn_chart.selectAll("image").remove()
-		// earn_chart.selectAll("[source]").remove()
-		saveSvgAsPng(document.getElementById("avg_earn"), "earnings.png", {height:height,top:50,scale:scale});
+		saveSvgAsPng(document.getElementById("avg_earn"), "earnings.png", {height:height,top:50,scale:scale}, function(){
+			$('#constraint').height(height)
+			earn_chart.selectAll("[long]").attr({y2:18000})
+			earn_chart.selectAll("image").remove()
+			earn_chart.selectAll("[source]").remove()
+		});
 	})
 }
 

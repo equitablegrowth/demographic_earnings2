@@ -214,7 +214,6 @@
     out$.svgAsDataUri(el, options, function(uri) {
       var image = new Image();
       image.onload = function() {
-        console.log('inhere2',image)
         var canvas = document.createElement('canvas');
         canvas.width = image.width;
         canvas.height = image.height;
@@ -268,13 +267,14 @@
     });
   }
 
-  out$.saveSvgAsPng = function(el, name, options) {
+  out$.saveSvgAsPng = function(el, name, options, savecb) {
     requireDomNode(el);
 
     options = options || {};
     out$.svgAsPngUri(el, options, function(uri) {
       idownload(name, uri);
     });
+    savecb()
   }
 
   // if define is defined create as an AMD module
