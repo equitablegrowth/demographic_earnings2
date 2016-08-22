@@ -214,8 +214,11 @@ var topf=0
 var bottom=0
 var animating=0
 var current=['AllAllAll']
-// earn_chart.clear()
 redraw(0)
+
+$(window).resize(function() {
+	$('#constraint').height((current.length*95+65)*$('#constraint').width()/690)
+})
 
 function redraw(delay){
 	// clear everything and set original height
@@ -226,7 +229,8 @@ function redraw(delay){
 	current=['AllAllAll']
 	earn_chart.selectAll('[label]').animate({y:160},1000,mina.linear)
 	earn_chart.selectAll('[axis]').animate({y:170},1000,mina.linear)
-	$('#constraint').animate({height:160},delay,'linear',function(){
+	$('#constraint').animate({height:160*($('#constraint').width()/690)},delay,'linear',function(){
+		var cur_height=$('#constraint').height()/($('#constraint').width()/690)
 		earn_chart.selectAll('rect').remove()
 		earn_chart.selectAll('text').remove()
 		earn_chart.selectAll('line').remove()
@@ -243,17 +247,17 @@ function redraw(delay){
 		earn_chart.line(coord(70),50,coord(70),145).attr({stroke:'#ddd','stroke-width':1,'shape-rendering':'crispEdges','stroke-dasharray':[5,5],long:1})
 		earn_chart.line(coord(80),50,coord(80),145).attr({stroke:'#ddd','stroke-width':1,'shape-rendering':'crispEdges',long:1})
 
-		earn_chart.text(coord(10)+3,$('#constraint').height()-12,'$10').attr({'font-family':'Lato','font-size':'.7em',fill:'#ccc',label:'yes'})
-		earn_chart.text(coord(30)+3,$('#constraint').height()-12,'$30').attr({'font-family':'Lato','font-size':'.7em',fill:'#ccc',label:'yes'})
-		earn_chart.text(coord(50)+3,$('#constraint').height()-12,'$50').attr({'font-family':'Lato','font-size':'.7em',fill:'#ccc',label:'yes'})
-		earn_chart.text(coord(70)+3,$('#constraint').height()-12,'$70').attr({'font-family':'Lato','font-size':'.7em',fill:'#ccc',label:'yes'})
-		var temp=earn_chart.text(coord(40)-1,$('#constraint').height()-2,'Hourly Wage').attr({'font-family':'Lato','font-size':'.7em',fill:'#aaa',axis:'yes','text-anchor':'middle'})
+		earn_chart.text(coord(10)+3,cur_height-12,'$10').attr({'font-family':'Lato','font-size':'.7em',fill:'#ccc',label:'yes'})
+		earn_chart.text(coord(30)+3,cur_height-12,'$30').attr({'font-family':'Lato','font-size':'.7em',fill:'#ccc',label:'yes'})
+		earn_chart.text(coord(50)+3,cur_height-12,'$50').attr({'font-family':'Lato','font-size':'.7em',fill:'#ccc',label:'yes'})
+		earn_chart.text(coord(70)+3,cur_height-12,'$70').attr({'font-family':'Lato','font-size':'.7em',fill:'#ccc',label:'yes'})
+		var temp=earn_chart.text(coord(40)-1,cur_height-2,'Hourly Wage').attr({'font-family':'Lato','font-size':'.7em',fill:'#aaa',axis:'yes','text-anchor':'middle'})
 
 		// draw starting graph (all)
 		var current=earn_chart_data.filter(function(row){
 			return row.gender==='All' & row.education==='All' & row.ethnicity==='All'
 		})
-		var y=$('#constraint').height()-67.5
+		var y=cur_height-67.5
 		var start_x=coord(current[0].t1)
 		var end_x=coord(current[0].t3)
 		var mid_x=coord(current[0].t2)
@@ -287,17 +291,17 @@ function addnew(){
 		if (current.indexOf(string)===-1){
 			animating=1
 			current.push(string)
-			var cur_height=$('#constraint').height()
+			var cur_height=$('#constraint').height()/($('#constraint').width()/690)
 			earn_chart.selectAll('[label]').animate({y:cur_height-12+95},800,mina.linear)
 			earn_chart.selectAll('[axis]').animate({y:cur_height-2+95},800,mina.linear)
 			earn_chart.selectAll('[long]').animate({y2:cur_height-12+95},800,mina.linear)
-			$('#constraint').animate({height:cur_height+95},800,'linear',function(){
+			$('#constraint').animate({height:$('#constraint').height()+95*($('#constraint').width()/690)},800,'linear',function(){
 				animating=0
 				// draw starting graph (all)
 				var current=earn_chart_data.filter(function(row){
 					return row.gender===gender & row.education===education & row.ethnicity===ethnicity
 				})
-				var y=$('#constraint').height()-67.5
+				var y=cur_height-12+95-67.5
 				var start_x=coord(current[0].t1)
 				var end_x=coord(current[0].t3)
 				var mid_x=coord(current[0].t2)
@@ -336,15 +340,15 @@ function interact(ev){
 	var svgx=document.getElementById("avg_earn").getBoundingClientRect()['left']
 	var x=ev.clientX-svgx
 
-	if(y<=bottom && y>=topf && x>=1 && x<690){
+	if(y<=bottom && y>=topf && x>=1 && x<$("#constraint").width()){
 
 	} else {
 		if(animating==0){
 			var target=Snap(ev.target)
 			var ident=target.attr('ident2')
 
-			topf=parseFloat(target.attr('y'))
-			bottom=parseFloat(target.attr('y'))+parseFloat(target.attr('height'))
+			topf=parseFloat(target.attr('y'))*($('#constraint').width()/690)
+			bottom=topf+parseFloat(target.attr('height'))*($('#constraint').width()/690)
 
 			var rect=earn_chart.select("rect[ident2='"+ident+"']")
 			rect.attr({opacity:.1})
@@ -378,7 +382,7 @@ function uninteract(ev){
 	var svgx=document.getElementById("avg_earn").getBoundingClientRect()['left']
 	var x=ev.clientX-svgx
 
-	if(y<=bottom && y>=topf && x>=1 && x<690){
+	if(y<=bottom && y>=topf && x>=1 && x<$("#constraint").width()){
 
 	} else {
 		bottom=0
@@ -406,7 +410,7 @@ function remove_line(ev){
 		var a=current.indexOf(string)
 		var after_box=current.slice(a+1,current.length)
 		current.splice(a,1)
-		var cur_height=$('#constraint').height()
+		var cur_height=$('#constraint').height()/($('#constraint').width()/690)
 		earn_chart.selectAll('[label]').animate({y:cur_height-12-95},400,mina.linear)
 		earn_chart.selectAll('[long]').animate({y2:cur_height-12-95},400,mina.linear)
 		earn_chart.selectAll('[axis]').animate({y:cur_height-2-95},400,mina.linear)
@@ -424,7 +428,7 @@ function remove_line(ev){
 				elements[j].animate({y:parseFloat(elements[j].attr('y'))-95},400,mina.linear)
 			}
 		}
-		$('#constraint').animate({height:cur_height-95},400,'linear',function(){
+		$('#constraint').animate({height:$('#constraint').height()-95*($('#constraint').width()/690)},400,'linear',function(){
 			animating=0
 		})
 	}
@@ -441,12 +445,12 @@ function download_image(){
 		var height=$('#constraint').height()
 		var width=$('#constraint').width()
 		var scale=window.devicePixelRatio
-		$('#constraint').height(height+43)
-		var source=earn_chart.text(0,height+20,["Authors' analysis using pooled data from 2011-2014 of: Center for Economic and Policy Research.","2016. CPS ORG Uniform Extracts, Version 2.1. Washington, DC."]).attr({'font-family':'Lato','font-size':'.7em','fill':'#ccc','font-weight':400,source:1})
+		$('#constraint').height(height+43*($('#constraint').width()/690))
+		var source=earn_chart.text(0,height/($('#constraint').width()/690)+20,["Authors' analysis using pooled data from 2011-2014 of: Center for Economic and Policy Research.","2016. CPS ORG Uniform Extracts, Version 2.1. Washington, DC."]).attr({'font-family':'Lato','font-size':'.7em','fill':'#ccc','font-weight':400,source:1})
 		source.selectAll("tspan:not(:first-child)").attr({x:source.attr('x'),dy:14})
-		var logo=earn_chart.text(width-15,height+20,'www.equitablegrowth.org').attr({'font-family':'Lato','font-size':'.7em','fill':'#ccc','font-weight':400,source:1,'text-anchor':'end'})
+		var logo=earn_chart.text(width/($('#constraint').width()/690)-15,height/($('#constraint').width()/690)+20,'www.equitablegrowth.org').attr({'font-family':'Lato','font-size':'.7em','fill':'#ccc','font-weight':400,source:1,'text-anchor':'end'})
 	
-		saveSvgAsPng(document.getElementById("avg_earn"), "earnings.png", {height:height-7,top:50,scale:scale}, function(){
+		saveSvgAsPng(document.getElementById("avg_earn"), "earnings.png", {height:height/($('#constraint').width()/690),top:50,scale:scale}, function(){
 			$('#constraint').height(height)
 			earn_chart.selectAll("[source]").remove()
 		});
@@ -454,10 +458,10 @@ function download_image(){
 	} else {
 		var height=$('#constraint').height()
 		var scale=window.devicePixelRatio
-		$('#constraint').height(height+43)
+		$('#constraint').height(height+43*($('#constraint').width()/690))
 
 		prep_download(function(){
-			saveSvgAsPng(document.getElementById("avg_earn"), "earnings.png", {height:height-7,top:50,scale:scale}, function(){
+			saveSvgAsPng(document.getElementById("avg_earn"), "earnings.png", {height:height/($('#constraint').width()/690)-7,top:50,scale:scale}, function(){
 				$('#constraint').height(height)
 				earn_chart.selectAll("image").remove()
 				earn_chart.selectAll("[source]").remove()
@@ -473,13 +477,13 @@ function prep_download(cb){
 	var svg=document.getElementsByTagName('svg')[0]
 	var placedlogo=document.createElementNS("http://www.w3.org/2000/svg", 'image')
 	placedlogo.addEventListener('load',function(){
-		var source=earn_chart.text(0,height-16,["Authors' analysis using pooled data from 2011-2014 of: Center for Economic and Policy Research.","2016. CPS ORG Uniform Extracts, Version 2.1. Washington, DC."]).attr({'font-family':'Lato','font-size':'.7em','fill':'#ccc','font-weight':400,source:1})
+		var source=earn_chart.text(0,height/($('#constraint').width()/690)-16,["Authors' analysis using pooled data from 2011-2014 of: Center for Economic and Policy Research.","2016. CPS ORG Uniform Extracts, Version 2.1. Washington, DC."]).attr({'font-family':'Lato','font-size':'.7em','fill':'#ccc','font-weight':400,source:1})
 		source.selectAll("tspan:not(:first-child)").attr({x:source.attr('x'),dy:14})
 		cb()
 	})
 	placedlogo.setAttributeNS("http://www.w3.org/1999/xlink","xlink:href",logo)
-	placedlogo.setAttribute("x",width-136)
-	placedlogo.setAttribute("y",height-33)
+	placedlogo.setAttribute("x",690-136)
+	placedlogo.setAttribute("y",height/($('#constraint').width()/690)-33)
 	placedlogo.setAttribute("height",33)
 	placedlogo.setAttribute("width",106)
 	svg.appendChild(placedlogo);
